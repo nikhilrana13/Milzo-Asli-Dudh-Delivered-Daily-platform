@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import dotenv from "dotenv";
+const mongoose = require("mongoose")
+const dotenv = require("dotenv")
 
 dotenv.config();
 const dbConfig = process.env.MONGO_URL
@@ -7,7 +7,7 @@ const dbConfig = process.env.MONGO_URL
 
 // console.log("DB Config:", process.env.MONGO_URL);
 
-export const configure = () => {
+const configure = () => {
   const connect = () => {
     mongoose.connect(dbConfig);
   };
@@ -28,3 +28,5 @@ export const configure = () => {
     connect();
   });
 };
+
+module.exports = configure
