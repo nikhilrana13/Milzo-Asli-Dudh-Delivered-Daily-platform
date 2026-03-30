@@ -11,9 +11,11 @@ const AuthMiddleware = async(req,res,next)=>{
             try {
                 const token = authheader.split(" ")[1]
                 const decoded = jwt.verify(token,process.env.JWT_SECRET_KEY)
+                // console.log(decoded);
                 req.user = decoded.id 
                 // console.log("req.user",req.user)
                 req.role =  decoded.role 
+                // console.log("req.role",req.role)
                 next()                
             } catch (error) {
                 console.log("error in authMiddleware",error)

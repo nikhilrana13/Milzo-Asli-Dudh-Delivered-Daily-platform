@@ -4,7 +4,7 @@ const cookieParser = require("cookie-parser")
 const dotenv = require("dotenv")
 const configure  = require("./config/db")
 const authRoute = require("./routes/authroutes")
-
+const vendorRoute = require("./routes/vendorroutes")
 
 dotenv.config()
 
@@ -19,6 +19,7 @@ app.use(express.urlencoded({extended:false}))
 
 // routes 
 app.use("/api/auth",authRoute)
+app.use("/api/vendor",vendorRoute)
 
 
 
