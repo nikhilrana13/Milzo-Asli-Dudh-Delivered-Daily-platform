@@ -23,7 +23,7 @@ const ApplyKyc = async (req, res) => {
     if (vendorexists.role !== "vendor") {
       return Response(res, 401, "You are not authorized to access this route");
     }
-    // prevents reapply kyc
+    // prevents reapply kyc when vendor kycstatus already pending or approved only allow to not_submitted or rejected kycstatus
     if (["pending", "approved"].includes(vendorexists.kycStatus)) {
       return Response(res, 400, `KYC already ${vendorexists.kycStatus}`);
     }
@@ -140,12 +140,14 @@ const ApplyKyc = async (req, res) => {
           milkLabTestImg: milkLabTestImgUrl,
           dairyImages: imageUrls,
           dairyVideos: videoUrls,
+          isActive:false,
           kycStatus: "pending",
+          rejectedReason:"",
           isKycApproved: false,
         },
         { new: true },
       );
-      return Response(res,200,"Kyc Submitted Wait for 48 hours to be apporved",{ vendor });
+      return Response(res,200,"Kyc Submitted Wait for 48 hours to be apporved");
     } catch (error) {
       console.error("Upload failed:", error);
       // Cleanup already uploaded files
