@@ -50,5 +50,49 @@ const validateContacts = (contacts) => {
   return null;
 };
 
+const AddProductPriceOptionsValidation = (priceOptions)=>{
+  if(!priceOptions) return "Price options are required";
+    // Must be array
+  if (!Array.isArray(priceOptions)) {
+    return "Price options must be an array";
+  }
+  const allowedUnits = ["ml", "litre", "g", "kg"];
+  const seen = new Set(); // duplicate check
 
-module.exports = {safeParse,validateContacts,validateDeliveryTimings,validateKycDetails}
+  for (let i = 0; i < priceOptions.length; i++) {
+    const option = priceOptions[i];
+    // Required fields
+    if (!option.unit || !option.quantity || !option.mrp || !option.sellingPrice) {
+      return `All fields are required in price option ${i + 1}`;
+    }
+    // Unit validation
+    if (!allowedUnits.includes(option.unit)) {
+      return `Invalid unit in option ${i + 1}`;
+    }
+    // Quantity validation
+    if (typeof option.quantity !== "number" || option.quantity <= 0) {
+      return `Invalid quantity in option ${i + 1}`;
+    }
+    // Price validation
+    if (typeof option.mrp !== "number" || option.mrp <= 0) {
+      return `Invalid MRP in option ${i + 1}`;
+    }
+    if (typeof option.sellingPrice !== "number" || option.sellingPrice <= 0) {
+      return `Invalid selling price in option ${i + 1}`;
+    }
+    // Selling price <= MRP
+    if (option.sellingPrice > option.mrp) {
+      return `Selling price cannot be greater than MRP in option ${i + 1}`;
+    }
+    // Duplicate unit + quantity check
+    const key = `${option.unit}-${option.quantity}`;
+    if (seen.has(key)) {
+      return `Duplicate price option for ${option.quantity}${option.unit}`;
+    }
+    seen.add(key);
+  }
+  return null;
+}
+
+
+module.exports = {safeParse,validateContacts,validateDeliveryTimings,validateKycDetails,AddProductPriceOptionsValidation}
