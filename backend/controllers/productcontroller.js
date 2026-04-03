@@ -237,8 +237,8 @@ const UpdateProductDetails = async (req, res) => {
         return Response(res, 400, "Invalid existing images format");
       }
     } else {
-    //  if not provided: assume user didn't modify images => keep all existing images
-     parsedExistingImages = oldImages.map((img) => img.url); 
+      //  if not provided: assume user didn't modify images => keep all existing images
+      parsedExistingImages = oldImages.map((img) => img.url);
     }
     // total images after update
     const totalImagesCount = parsedExistingImages.length + files.length;
@@ -328,11 +328,35 @@ const DeleteProduct = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
-// update product status
-
-module.exports = {
-  Addproduct,
-  VendorAllProducts,
-  UpdateProductDetails,
-  DeleteProduct,
+// update product status available or not
+const UpdateProductStatus = async (req, res) => {
+  try {
+    const userId = req.user;
+    const productId = req.params.id
+    const { isAvailable } = req.body;
+     // check vendor exists or not
+    const vendorexists = await Vendor.findById(userId);
+    if (!vendorexists) {
+      return Response(res, 401, "Vendor not found");
+    }
+    if (vendorexists.role !== "vendor") {
+      return Response(res, 401, "You are not authorized to access this route");
+    }
+    // allow only approved vendors
+    if (vendorexists.kycStatus !== "approved") {
+      return Response(res,401,"You are not authorized to update Product status please Complete kyc",);
+    }
+    const product = await Product.findById(productId)
+    if(!product){
+      return Response(res,400,"Product not found")
+    }
+    product.isAvailable = isAvailable
+    await product.save()
+    return Response(res,200,`Product ${isAvailable ? 'active' :'inactive'} successfully`)
+  } catch (error) {
+    console.error("failed to update product status",error)
+    return Response(res,500,"Internal server error")
+  }
 };
+
+module.exports = {Addproduct,VendorAllProducts,UpdateProductDetails,DeleteProduct,UpdateProductStatus};

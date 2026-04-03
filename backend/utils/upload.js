@@ -18,14 +18,14 @@ const uploadToImageKit = async (file,folder = "/milzo") => {
 };
 const deleteFromImageKit = async (files) => {
   try {
-        console.log("Deleting these files:", files);
+        // console.log("Deleting these files:", files);
       await Promise.all(
       files.map(file => {
-        console.log("Deleting fileId:", file.fileId);
+        // console.log("Deleting fileId:", file.fileId);
         return imagekit.deleteFile(file.fileId);
       })
     );
-    console.log("Files deleted successfully");
+    // console.log("Files deleted successfully");
   } catch (error) {
     console.error("Error deleting files from ImageKit:", error);
   }

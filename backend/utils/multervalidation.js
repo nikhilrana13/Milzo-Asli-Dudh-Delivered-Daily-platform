@@ -2,7 +2,7 @@ const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
 const allowedVideoTypes = ["video/mp4", "video/mov"];
 
 const FileFilter = (req, file, cb) => {
-  if (file.fieldname === "images" || file.fieldname === "aadharImages") {
+  if (file.fieldname === "images" || file.fieldname === "aadharImages" || file.fieldname === "profilePic") {
     if (allowedImageTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {

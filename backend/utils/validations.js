@@ -1,3 +1,4 @@
+
 const safeParse = (data) => {
   try {
     return typeof data === "string" ? JSON.parse(data) : data;
@@ -93,6 +94,7 @@ const AddProductPriceOptionsValidation = (priceOptions)=>{
   }
   return null;
 }
+
 
 
 module.exports = {safeParse,validateContacts,validateDeliveryTimings,validateKycDetails,AddProductPriceOptionsValidation}

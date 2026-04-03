@@ -3,7 +3,7 @@ const router = express.Router()
 const multer = require("multer")
 const AuthMiddleware = require("../middlewares/authmiddleware")
 const IsVendor = require("../middlewares/isvendor")
-const { Addproduct, VendorAllProducts, UpdateProductDetails, DeleteProduct } = require("../controllers/productcontroller")
+const { Addproduct, VendorAllProducts, UpdateProductDetails, DeleteProduct, UpdateProductStatus } = require("../controllers/productcontroller")
 const FileFilter = require("../utils/multervalidation")
 //multer config
 const storage = multer.memoryStorage()
@@ -15,6 +15,7 @@ const upload = multer({storage,limits:{
 router.post("/add-product",AuthMiddleware,IsVendor,upload.array("images",5),Addproduct)
 router.get("/vendor",AuthMiddleware,IsVendor,VendorAllProducts)
 router.put("/update/:id",AuthMiddleware,IsVendor,upload.array("images",5),UpdateProductDetails)
+router.patch("/status-update/:id",AuthMiddleware,IsVendor,UpdateProductStatus)
 router.delete("/delete/:id",AuthMiddleware,IsVendor,DeleteProduct)
 
 module.exports = router 

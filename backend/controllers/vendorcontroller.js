@@ -1,4 +1,6 @@
+const VendorMapper = require("../mappers/vendormapper");
 const Vendor = require("../models/vendormodel");
+const { uploadFiles, parseExisting, buildMedia } = require("../utils/helpers");
 const Response = require("../utils/responsehandler");
 const { uploadToImageKit, deleteFromImageKit } = require("../utils/upload");
 const {safeParse,validateContacts,validateDeliveryTimings,validateKycDetails} = require("../utils/validations");
@@ -7,7 +9,15 @@ const {safeParse,validateContacts,validateDeliveryTimings,validateKycDetails} = 
 const ApplyKyc = async (req, res) => {
   try {
     const userId = req.user;
-    let {displayName,location,city,pincode,kycDetails,deliveryTimings,contactnumbers} = req.body;
+    let {
+      displayName,
+      location,
+      city,
+      pincode,
+      kycDetails,
+      deliveryTimings,
+      contactnumbers,
+    } = req.body;
     // console.log("req.body",req.body)
     // Extract uploaded files with safe fallback
     const dairyImages = req.files?.images || [];
@@ -62,7 +72,11 @@ const ApplyKyc = async (req, res) => {
       ],
     });
     if (existingKyc && existingKyc._id.toString() !== userId) {
-      return Response(res, 400, "KYC details match with already used by another vendor");
+      return Response(
+        res,
+        400,
+        "KYC details match with already used by another vendor",
+      );
     }
     // Dairy images validation
     if (dairyImages.length === 0) {
@@ -96,8 +110,11 @@ const ApplyKyc = async (req, res) => {
             file,
             "/milzo/vendors/images",
           );
-          uploadedFiles.push(uploaded);
-          return uploaded.url;
+          // store full object (url + fileId)
+          uploadedFiles.push({
+            url: uploaded.url,
+            fileId: uploaded.fileId,
+          });
         }),
       );
       // Videos
@@ -107,8 +124,10 @@ const ApplyKyc = async (req, res) => {
             file,
             "/milzo/vendors/videos",
           );
-          uploadedFiles.push(uploaded);
-          return uploaded.url;
+          uploadedFiles.push({
+            url: uploaded.url,
+            fileId: uploaded.fileId,
+          });
         }),
       );
       // Aadhaar Images
@@ -140,14 +159,18 @@ const ApplyKyc = async (req, res) => {
           milkLabTestImg: milkLabTestImgUrl,
           dairyImages: imageUrls,
           dairyVideos: videoUrls,
-          isActive:false,
+          isActive: false,
           kycStatus: "pending",
-          rejectedReason:"",
+          rejectedReason: "",
           isKycApproved: false,
         },
         { new: true },
       );
-      return Response(res,200,"Kyc Submitted Wait for 48 hours to be apporved");
+      return Response(
+        res,
+        200,
+        "Kyc Submitted Wait for 48 hours to be apporved",
+      );
     } catch (error) {
       console.error("Upload failed:", error);
       // Cleanup already uploaded files
@@ -161,6 +184,151 @@ const ApplyKyc = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
+// update vendor profile
+const UpdateVendorProfile = async (req, res) => {
+  try {
+    const userId = req.user;
+    const {
+      username,
+      email,
+      displayName,
+      location,
+      city,
+      pincode,
+      contactnumbers,
+      deliveryTimings,
+      existingImages,
+      existingVideos,
+    } = req.body;
+    const dairyImages = req.files?.images || [];
+    const dairyVideos = req.files?.videos || [];
+    const profilePic = req.files?.profilePic?.[0];
+    // console.log("all files:", Object.keys(req.files || {}))
+    // check vendor exists or not
+    const vendor = await Vendor.findById(userId);
+    if (!vendor) {
+      return Response(res, 401, "Vendor not found");
+    }
+    if (vendor.role !== "vendor") {
+      return Response(res, 401, "You are not authorized to access this route");
+    }
+    //  Safe parsing (handles string → object conversion)
+    const parsedContacts = contactnumbers ? safeParse(contactnumbers) : null;
+    const parsedTimings = deliveryTimings ? safeParse(deliveryTimings) : null;
+  
+    let uploadedFiles = [];
+    // upload profile pic
+    let profilePicUrl = vendor.profilePic?.url || null; // Keep existing if not uploading
+    let profilePicFileId = vendor.profilePic?.fileId || null;
+    if (profilePic) {
+      // Delete old profilePic from ImageKit if it exists
+      if (profilePicFileId) {
+        try {
+          await deleteFromImageKit([{ fileId: profilePicFileId }]);
+          console.log("Old profilePic deleted from ImageKit");
+        } catch (err) {
+          console.error("Failed to delete old profilePic:", err);
+        }
+      }
+      // Upload new profilePic
+      const uploaded = await uploadToImageKit(
+        profilePic,
+        "/milzo/vendors/profileimages",
+      );
+      uploadedFiles.push(uploaded);
+      profilePicUrl = uploaded.url;
+      profilePicFileId = uploaded.fileId;
+    }
+    // upload images & videos
+    let newImages = [];
+    let newVideos = [];
+    try {
+      newImages = await uploadFiles(
+        dairyImages,
+        "/milzo/vendors/images",
+        uploadedFiles,
+      );
+      newVideos = await uploadFiles(
+        dairyVideos,
+        "/milzo/vendors/videos",
+        uploadedFiles,
+      );
+    } catch (error) {
+      if (uploadedFiles.length > 0) {
+        await deleteFromImageKit(uploadedFiles);
+      }
+      return Response(res, 500, "Upload failed");
+    }
+    // old media
+    const oldImages = vendor.dairyImages || [];
+    const oldVideos = vendor.dairyVideos || [];
+    // parse existing
+    const existingImageUrls = parseExisting(existingImages, oldImages);
+    const existingVideoUrls = parseExisting(existingVideos, oldVideos);
+    // validations
+    if (existingImageUrls.length + newImages.length > 5) {
+      return Response(res, 400, "Max 5 images allowed");
+    }
+    if (existingVideoUrls.length + newVideos.length > 2) {
+      return Response(res, 400, "Max 2 videos allowed");
+    }
+    // find removed
+    const removedImages = oldImages.filter(
+      (img) => !existingImageUrls.includes(img.url),
+    );
+    const removedVideos = oldVideos.filter(
+      (vid) => !existingVideoUrls.includes(vid.url),
+    );
+    // build final media
+    const finalImages = buildMedia(oldImages, existingImageUrls, newImages);
+    const finalVideos = buildMedia(oldVideos, existingVideoUrls, newVideos);
 
+    let updateData = {};
+    if (username) updateData.username = username;
+    if (email){
+       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        return Response(res, 400, "Invalid Email");
+      }
+      // Check duplicate email
+      const existingEmail = await Vendor.findOne({
+        email,
+        _id: { $ne: vendor._id },
+      });
+      if (existingEmail) {
+        return Response(res, 400, "Email already in use");
+      }
+      updateData.email = email;
+    }
+    if (displayName) updateData.displayName = displayName;
+    if (location) updateData.location = location;
+    if (city) updateData.city = city;
+    if (pincode) updateData.pincode = pincode;
+    if (parsedContacts) updateData.contactnumbers = parsedContacts;
+    if (parsedTimings) updateData.deliveryTimings = parsedTimings;
 
-module.exports = { ApplyKyc };
+    updateData.profilePic = { url: profilePicUrl, fileId: profilePicFileId };
+    updateData.dairyImages = finalImages;
+    updateData.dairyVideos = finalVideos;
+    // update
+    const updatedVendor = await Vendor.findByIdAndUpdate(
+      userId,
+      { $set: updateData },
+      { new: true },
+    );
+    // cleanup removed files
+    try {
+      await deleteFromImageKit([
+        ...removedImages.filter((i) => i.fileId),
+        ...removedVideos.filter((v) => v.fileId),
+      ]);
+    } catch (err) {
+      console.error("Cleanup failed", err);
+    }
+    return Response(res, 200, "Vendor updated", {user:VendorMapper(updatedVendor)});
+  } catch (error) {
+    console.error("failed to update vendor profile", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
+module.exports = { ApplyKyc,UpdateVendorProfile};

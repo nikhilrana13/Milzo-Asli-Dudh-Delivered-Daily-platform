@@ -4,7 +4,7 @@ const VendorMapper = (vendor)=>({
     email: vendor.email,
     role: vendor.role,
     displayName:vendor.displayName,
-    profilePic:vendor.profilePic,
+    profilePic:vendor.profilePic?.url || null,
     isActive:vendor.isActive,
     kycStatus:vendor.kycStatus,
     isKycApproved:vendor.isKycApproved,
