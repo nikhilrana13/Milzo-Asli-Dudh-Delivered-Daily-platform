@@ -17,21 +17,21 @@ const userSchema = new mongoose.Schema(
       index: true,
     },
     firebaseUid: { type: String, required: true, unique: true },
-    profilePic: { type: String, default: null },
+    profilePic: { url: { type: String, default: null }, fileId: { type: String, default: null } },
     addresses: [
       {
         label:{type:String,default:"home",lowercase:true,trim:true},
-        address:{ type: String,default:"",trim:true},
-        city:{type: String,default:"",trim:true},
+        address:{ type: String,default:"",trim:true,lowercase:true},
+        city:{type: String,default:"",trim:true,lowercase:true},
         pincode:{type: String,default:"",match: [/^[0-9]{6}$/, "Invalid pincode"]},
       }
     ],
     phoneNumber: {
       type: String,
       default: "",
-      match: [/^[0-9]{10}$/, "Invalid phone number"],
+      match: [/^[6-9]\d{9}$/, "Invalid Indian phone number"],
     },
-    secondPhoneNumber: { type: String, default: "",match: [/^[0-9]{10}$/, "Invalid phone number"]},
+    secondPhoneNumber: { type: String, default: "",match: [/^[6-9]\d{9}$/, "Invalid Indian phone number"]},
     isActive: { type: Boolean, default: true },
     role: { type: String, default: "user" },
   },

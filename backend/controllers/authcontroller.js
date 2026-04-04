@@ -20,7 +20,7 @@ const LoginWithGoogle = async(req,res)=>{
             user = await User.create({
                 firebaseUid:uid,
                 username:name,
-                profilePic:picture,
+                profilePic:{ url: picture, fileId: null },
                 email:email
             })
             return Response(res,201,"Login Successfully",{user})
@@ -28,7 +28,7 @@ const LoginWithGoogle = async(req,res)=>{
             // update existing
             user.firebaseUid = uid,
             user.username = name,
-            user.profilePic = picture,
+            user.profilePic = { url: picture, fileId: null },
             user.email = email
             await user.save()
         }

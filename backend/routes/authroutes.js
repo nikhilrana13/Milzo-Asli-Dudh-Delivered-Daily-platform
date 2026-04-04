@@ -32,7 +32,7 @@ router.post("/test-google",async (req, res) => {
       uid: "testuid123",
       email: "test@gmail.com",
       name: "Test User",
-      picture: "test.jpg"
+      picture:"test.jpg"
     };
     req.user = fakeDecodedUser;
     return LoginWithGoogle(req, res);
