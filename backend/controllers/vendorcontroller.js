@@ -1,9 +1,17 @@
 const VendorMapper = require("../mappers/vendormapper");
 const Vendor = require("../models/vendormodel");
+const { getCoordinates } = require("../utils/geolocations");
 const { uploadFiles, parseExisting, buildMedia } = require("../utils/helpers");
 const Response = require("../utils/responsehandler");
 const { uploadToImageKit, deleteFromImageKit } = require("../utils/upload");
-const {safeParse,validateContacts,validateDeliveryTimings,validateKycDetails} = require("../utils/validations");
+const {
+  safeParse,
+  validateContacts,
+  validateDeliveryTimings,
+  validateKycDetails,
+} = require("../utils/validations");
+
+
 
 // apply kyc
 const ApplyKyc = async (req, res) => {
@@ -11,7 +19,6 @@ const ApplyKyc = async (req, res) => {
     const userId = req.user;
     let {
       displayName,
-      location,
       city,
       pincode,
       kycDetails,
@@ -38,7 +45,7 @@ const ApplyKyc = async (req, res) => {
       return Response(res, 400, `KYC already ${vendorexists.kycStatus}`);
     }
     // Required basic fields validation
-    const allowedFields = ["displayName", "location", "city", "pincode"];
+    const allowedFields = ["displayName", "city", "pincode"];
     for (let field of allowedFields) {
       if (!req.body[field]) {
         return Response(res, 400, `${field} is Required`);
@@ -48,7 +55,6 @@ const ApplyKyc = async (req, res) => {
     const parsedContacts = safeParse(contactnumbers);
     const parsedTimings = safeParse(deliveryTimings);
     const parsedKyc = safeParse(kycDetails);
-
     //Validate contact numbers
     const contactError = validateContacts(parsedContacts);
     if (contactError) {
@@ -115,6 +121,7 @@ const ApplyKyc = async (req, res) => {
             url: uploaded.url,
             fileId: uploaded.fileId,
           });
+          return uploaded.url;
         }),
       );
       // Videos
@@ -145,12 +152,19 @@ const ApplyKyc = async (req, res) => {
       );
       let milkLabTestImgUrl = uploaded.url;
       uploadedFiles.push(uploaded);
+      const coords = await getCoordinates(city, pincode);
+      if (!coords || !coords.lat || !coords.lng) {
+        return Response(res, 400, "Unable to fetch location coordinates");
+      }
       //  Save updated vendor data in DB
       const vendor = await Vendor.findByIdAndUpdate(
         userId,
         {
           displayName,
-          location,
+          location: {
+            type: "Point",
+            coordinates: [coords.lng, coords.lat],
+          },
           city,
           pincode,
           kycDetails: { ...parsedKyc, aadharImages: uploadedAadharImages },
@@ -192,7 +206,6 @@ const UpdateVendorProfile = async (req, res) => {
       username,
       email,
       displayName,
-      location,
       city,
       pincode,
       contactnumbers,
@@ -215,7 +228,7 @@ const UpdateVendorProfile = async (req, res) => {
     //  Safe parsing (handles string → object conversion)
     const parsedContacts = contactnumbers ? safeParse(contactnumbers) : null;
     const parsedTimings = deliveryTimings ? safeParse(deliveryTimings) : null;
-  
+
     let uploadedFiles = [];
     // upload profile pic
     let profilePicUrl = vendor.profilePic?.url || null; // Keep existing if not uploading
@@ -282,11 +295,10 @@ const UpdateVendorProfile = async (req, res) => {
     // build final media
     const finalImages = buildMedia(oldImages, existingImageUrls, newImages);
     const finalVideos = buildMedia(oldVideos, existingVideoUrls, newVideos);
-
     let updateData = {};
     if (username) updateData.username = username;
-    if (email){
-       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         return Response(res, 400, "Invalid Email");
       }
@@ -300,8 +312,19 @@ const UpdateVendorProfile = async (req, res) => {
       }
       updateData.email = email;
     }
+   // geo update only when needed
+    let coords = null;
+    if (city && pincode) {
+      coords = await getCoordinates(city, pincode);
+      if (!coords || !coords.lat || !coords.lng) {
+        return Response(res, 400, "Unable to fetch location coordinates");
+      }
+      updateData.location = {
+        type: "Point",
+        coordinates: [coords.lng, coords.lat],
+      };
+    }
     if (displayName) updateData.displayName = displayName;
-    if (location) updateData.location = location;
     if (city) updateData.city = city;
     if (pincode) updateData.pincode = pincode;
     if (parsedContacts) updateData.contactnumbers = parsedContacts;
@@ -325,13 +348,13 @@ const UpdateVendorProfile = async (req, res) => {
     } catch (err) {
       console.error("Cleanup failed", err);
     }
-    return Response(res, 200, "Vendor updated", {user:VendorMapper(updatedVendor)});
+    return Response(res, 200, "Vendor updated", {
+      user: VendorMapper(updatedVendor),
+    });
   } catch (error) {
     console.error("failed to update vendor profile", error);
     return Response(res, 500, "Internal server error");
   }
 };
 
-module.exports = { ApplyKyc,UpdateVendorProfile};
-
-
+module.exports = { ApplyKyc, UpdateVendorProfile };

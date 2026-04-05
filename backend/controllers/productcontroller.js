@@ -358,5 +358,15 @@ const UpdateProductStatus = async (req, res) => {
     return Response(res,500,"Internal server error")
   }
 };
+// find vendors based user selected location
+const FindVendors = async(req,res)=>{
+  try {
+    
+  } catch (error) {
+    
+  }
+}
+
+
 
 module.exports = {Addproduct,VendorAllProducts,UpdateProductDetails,DeleteProduct,UpdateProductStatus};

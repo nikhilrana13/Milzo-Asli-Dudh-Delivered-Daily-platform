@@ -8,6 +8,7 @@ const vendorRoute = require("./routes/vendorroutes")
 const adminRoute = require("./routes/adminroutes")
 const productRoute = require("./routes/productroutes")
 const userRoute = require("./routes/userroutes")
+const locationRoute = require("./routes/locationroutes")
 dotenv.config()
 
 const PORT = process.env.PORT || 5000
@@ -25,6 +26,7 @@ app.use("/api/vendor",vendorRoute)
 app.use("/api/admin",adminRoute)
 app.use("/api/products",productRoute)
 app.use("/api/user",userRoute)
+app.use("/api/location",locationRoute)
 
 
 

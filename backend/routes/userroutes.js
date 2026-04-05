@@ -3,8 +3,9 @@ const router = express.Router()
 const multer = require("multer")
 const AuthMiddleware = require("../middlewares/authmiddleware")
 const IsUser = require("../middlewares/isuser")
-const { UpdateUserProfile, AddnewAddress, UpdateAddress, GetUserAddresses, DeleteAddress } = require("../controllers/usercontroller")
+const { UpdateUserProfile, AddnewAddress, UpdateAddress, GetUserAddresses, DeleteAddress, AddAddressFromCoords } = require("../controllers/usercontroller")
 const FileFilter = require("../utils/multervalidation")
+const { GetLocationFromCoords } = require("../utils/geolocations")
 //multer config
 const storage = multer.memoryStorage()
 const upload = multer({storage,limits:{
@@ -14,6 +15,7 @@ const upload = multer({storage,limits:{
 
 router.put("/update-profile",AuthMiddleware,IsUser,upload.single("profilePic"),UpdateUserProfile)
 router.put("/add-address", AuthMiddleware, IsUser, AddnewAddress)
+router.post("/add-address-from-coords", AuthMiddleware, IsUser, AddAddressFromCoords) 
 router.put("/update-address",AuthMiddleware,IsUser,UpdateAddress)
 router.get("/all-address",AuthMiddleware,IsUser,GetUserAddresses)
 router.delete("/address-delete",AuthMiddleware,IsUser,DeleteAddress)

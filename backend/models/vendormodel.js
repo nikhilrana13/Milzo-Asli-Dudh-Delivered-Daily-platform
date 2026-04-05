@@ -10,32 +10,45 @@ const vendorSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
-    role: { type: String, default: "vendor",enum:["vendor"]},
+    role: { type: String, default: "vendor", enum: ["vendor"] },
     password: { type: String, required: true },
-    profilePic: { url: { type: String, default: null }, fileId: { type: String, default: null } },
+    profilePic: {
+      url: { type: String, default: null },
+      fileId: { type: String, default: null },
+    },
     displayName: { type: String, default: "", maxlength: 100 },
-    location: { type: String, default: "", trim: true },
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number], // [lng, lat]
+        required: true,
+      },
+    },
     city: { type: String, default: "", trim: true },
     pincode: {
       type: String,
       default: "",
       match: [/^[0-9]{6}$/, "Invalid pincode"],
     },
-    contactnumbers: [{ type: String, default:""}],
-    dairyImages: [{ url:{type:String},fileId:{type:String} }],
-    dairyVideos: [{ url:{type:String},fileId:{type:String} }],
+    contactnumbers: [{ type: String, default: "" }],
+    dairyImages: [{ url: { type: String }, fileId: { type: String } }],
+    dairyVideos: [{ url: { type: String }, fileId: { type: String } }],
     isActive: { type: Boolean, default: false },
     isKycApproved: { type: Boolean, default: false },
     kycDetails: {
-      aadharNumber: { type: String},
+      aadharNumber: { type: String },
       aadharImages: [{ type: String }],
-      bankAccountNumber: { type: String, default: ""},
+      bankAccountNumber: { type: String, default: "" },
       ifscCode: { type: String, default: "" },
     },
     milkLabTestImg: { type: String, default: "" },
     kycStatus: {
       type: String,
-      enum: ["approved", "rejected", "pending","not_submitted"],
+      enum: ["approved", "rejected", "pending", "not_submitted"],
       default: "not_submitted",
     },
     rejectedReason: { type: String, default: "" },
@@ -62,6 +75,7 @@ const vendorSchema = new mongoose.Schema(
 
 // for query optimization
 vendorSchema.index({ city: 1, pincode: 1 });
+vendorSchema.index({ location: "2dsphere" });
 
 const Vendor = mongoose.model("Vendor", vendorSchema);
 module.exports = Vendor;
