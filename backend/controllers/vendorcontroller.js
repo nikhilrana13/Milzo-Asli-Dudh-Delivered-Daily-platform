@@ -1,5 +1,6 @@
 const VendorMapper = require("../mappers/vendormapper");
 const Vendor = require("../models/vendormodel");
+const Product = require("../models/productmodel");
 const { getCoordinates } = require("../utils/geolocations");
 const { uploadFiles, parseExisting, buildMedia } = require("../utils/helpers");
 const Response = require("../utils/responsehandler");
@@ -11,8 +12,6 @@ const {
   validateKycDetails,
 } = require("../utils/validations");
 
-
-
 // apply kyc
 const ApplyKyc = async (req, res) => {
   try {
@@ -22,6 +21,7 @@ const ApplyKyc = async (req, res) => {
       city,
       pincode,
       kycDetails,
+      description,
       deliveryTimings,
       contactnumbers,
     } = req.body;
@@ -35,7 +35,7 @@ const ApplyKyc = async (req, res) => {
     // check vendor exists or not
     const vendorexists = await Vendor.findById(userId);
     if (!vendorexists) {
-      return Response(res, 401, "Vendor not found");
+      return Response(res, 404, "Vendor not found");
     }
     if (vendorexists.role !== "vendor") {
       return Response(res, 401, "You are not authorized to access this route");
@@ -121,7 +121,10 @@ const ApplyKyc = async (req, res) => {
             url: uploaded.url,
             fileId: uploaded.fileId,
           });
-          return uploaded.url;
+          return {
+            url: uploaded.url,
+            fileId: uploaded.fileId,
+          };
         }),
       );
       // Videos
@@ -135,6 +138,10 @@ const ApplyKyc = async (req, res) => {
             url: uploaded.url,
             fileId: uploaded.fileId,
           });
+          return {
+            url: uploaded.url,
+            fileId: uploaded.fileId,
+          };
         }),
       );
       // Aadhaar Images
@@ -166,6 +173,7 @@ const ApplyKyc = async (req, res) => {
             coordinates: [coords.lng, coords.lat],
           },
           city,
+          description,
           pincode,
           kycDetails: { ...parsedKyc, aadharImages: uploadedAadharImages },
           deliveryTimings: parsedTimings,
@@ -208,6 +216,7 @@ const UpdateVendorProfile = async (req, res) => {
       displayName,
       city,
       pincode,
+      description,
       contactnumbers,
       deliveryTimings,
       existingImages,
@@ -220,7 +229,7 @@ const UpdateVendorProfile = async (req, res) => {
     // check vendor exists or not
     const vendor = await Vendor.findById(userId);
     if (!vendor) {
-      return Response(res, 401, "Vendor not found");
+      return Response(res, 404, "Vendor not found");
     }
     if (vendor.role !== "vendor") {
       return Response(res, 401, "You are not authorized to access this route");
@@ -312,10 +321,11 @@ const UpdateVendorProfile = async (req, res) => {
       }
       updateData.email = email;
     }
-   // geo update only when needed
+    // geo update only when needed
     let coords = null;
     if (city && pincode) {
       coords = await getCoordinates(city, pincode);
+      // console.log(coords)
       if (!coords || !coords.lat || !coords.lng) {
         return Response(res, 400, "Unable to fetch location coordinates");
       }
@@ -327,6 +337,7 @@ const UpdateVendorProfile = async (req, res) => {
     if (displayName) updateData.displayName = displayName;
     if (city) updateData.city = city;
     if (pincode) updateData.pincode = pincode;
+    if (description) updateData.description = description;
     if (parsedContacts) updateData.contactnumbers = parsedContacts;
     if (parsedTimings) updateData.deliveryTimings = parsedTimings;
 
@@ -356,5 +367,158 @@ const UpdateVendorProfile = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
+// find nearby vendors based on user selected location
+const FindVendors = async (req, res) => {
+  try {
+    let { lat, lng, page = 1, limit = 10, toprated, maxDistance } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+    const skip = (page - 1) * limit;
+    if (lat === undefined || lng === undefined || isNaN(lat) || isNaN(lng)) {
+      return Response(res, 400, "User location is required");
+    }
+    let query = { isActive: true, kycStatus: "approved" };
+    // top rated filter
+    if (toprated === "true") {
+      query.rating = { $gte: 4 };
+    }
+    const distanceInKm = maxDistance ? parseFloat(maxDistance) : 15; // default 15km
+    // Use aggregation with $geoNear for geospatial query
+    const pipeline = [
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: [parseFloat(lng), parseFloat(lat)],
+          },
+          distanceField: "distance",
+          distanceMultiplier: 0.001, // meters -> km
+          maxDistance: distanceInKm * 1000, // default 15 km
+          query: query,
+          spherical: true,
+        },
+      },
+      { $sort: { distance: 1, rating: -1 } }, // show nearest vendor first same distance => high rating first
+      { $skip: skip },
+      { $limit: limit },
+      {
+        $project: {
+          displayName: 1,
+          rating: 1,
+          totalReviews: 1,
+          city: 1,
+          pincode: 1,
+          dairyVideos: 1,
+          distance: { $round: ["$distance", 2] },
+          dairyImages: 1,
+          city: 1,
+        },
+      },
+    ];
+    const vendors = await Vendor.aggregate(pipeline);
+    // For total count, use aggregation
+    const countPipeline = [
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: [parseFloat(lng), parseFloat(lat)],
+          },
+          distanceField: "distance",
+          distanceMultiplier: 0.001, // meters -> km
+          maxDistance: distanceInKm * 1000, // default 15 km
+          query: query,
+          spherical: true,
+        },
+      },
+      { $count: "total" },
+    ];
+    const countResult = await Vendor.aggregate(countPipeline);
+    const totalVendors = countResult[0]?.total || 0;
+    const totalPages = Math.ceil(totalVendors / limit);
+    if (vendors.length === 0) {
+      return Response(res, 200, "No Vendors found Please change location", []);
+    }
+    return Response(res, 200, "Vendors found", {
+      vendors,
+      pagination: {
+        totalPages,
+        currentPage: page,
+        totalVendors,
+        limit,
+      },
+    });
+  } catch (error) {
+    console.error("failed to find vendors", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
+// find vendor all products
+const FetchVendorAllproducts = async (req, res) => {
+  try {
+    let { page = 1, limit = 5, category, vendorId } = req.query;
+    page = parseInt(page);
+    limit = parseInt(limit);
+    if (!vendorId) {
+      return Response(res, 400, "VendorId is required");
+    }
+    // check vendor exists or not
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return Response(res, 404, "Vendor not found");
+    }
+    // Build query
+    let query = { vendorId };
+    if (category) {
+      query.category = category;
+    }
+    const skip = (page - 1) * limit;
+    const products = await Product.find(query)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+    const totalProducts = await Product.countDocuments(query);
+    const totalPages = Math.ceil(totalProducts / limit);
+    if (products.length === 0) {
+      return Response(res, 200, "No Products found", []);
+    }
+    return Response(res, 200, "Products fetched successfully", {
+      products,
+      pagination: {
+        totalPages,
+        currentPage: page,
+        totalProducts,
+        limit,
+      },
+    });
+  } catch (error) {
+    console.error("Failed to fetch vendor products", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
+// find vendor details
+const FetchVendorDetails = async (req, res) => {
+  try {
+    const  vendorId  = req.params.id;
+    if(!vendorId){
+      return Response(res,400,"VendorId is Required")
+    }
+    // check vendor exists or not
+    const vendor = await Vendor.findById(vendorId).select("displayName rating totalReviews description kycStatus dairyImages dairyVideos")
+    if (!vendor) {
+      return Response(res, 404, "Vendor not found");
+    }
+    return Response(res,200,{vendorDetails:vendor})
+  } catch (error) {
+    console.error("failed to fetch vendor details",error)
+    return Response(res, 500, "Internal server error");
+  }
+};
 
-module.exports = { ApplyKyc, UpdateVendorProfile };
+module.exports = {
+  ApplyKyc,
+  UpdateVendorProfile,
+  FindVendors,
+  FetchVendorAllproducts,
+  FetchVendorDetails
+};

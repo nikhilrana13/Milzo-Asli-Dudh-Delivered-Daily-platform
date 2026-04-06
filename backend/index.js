@@ -22,7 +22,7 @@ app.use(express.urlencoded({extended:false}))
 
 // routes 
 app.use("/api/auth",authRoute)
-app.use("/api/vendor",vendorRoute)
+app.use("/api",vendorRoute)
 app.use("/api/admin",adminRoute)
 app.use("/api/products",productRoute)
 app.use("/api/user",userRoute)

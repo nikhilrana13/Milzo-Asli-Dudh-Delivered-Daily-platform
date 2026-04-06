@@ -1,8 +1,7 @@
 const User = require("../models/usermodel");
 const Response = require("../utils/responsehandler");
 const { deleteFromImageKit, uploadToImageKit } = require("../utils/upload");
-const { safeParse } = require("../utils/validations");
-const { getCityFromCoords } = require("../utils/geolocations");
+
 
 // update user profile
 const UpdateUserProfile = async (req, res) => {
@@ -248,61 +247,13 @@ const DeleteAddress = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
-// add address from coordinates (reverse geocoding) fetch city state pincode automatically
-const AddAddressFromCoords = async (req, res) => {
-  try {
-    const userId = req.user;
-    const { lat, lng, label = "home" } = req.body;
-    if (!lat === undefined || !lng === undefined) {
-      return Response(res, 400, "Latitude and longitude are required");
-    }
-    // check user
-    const user = await User.findById(userId);
-    if (!user || user.role !== "user") {
-      return Response(res, 401, "Unauthorized");
-    }
-    if (lat === undefined || lng === undefined) {
-      return Response(res, 400, "Latitude and longitude are required");
-    }
-    const safeLabel = label?.toLowerCase().trim() || "home";
-    if (user.addresses.length >= 5) {
-      return Response(res, 400, "Maximum 5 addresses allowed");
-    }
-    // reverse geocode
-    const geoData = await getCityFromCoords(lat, lng);
-    if (!geoData) {
-      return Response(res, 400, "Unable to geocode coordinates");
-    }
-    const { city, state, pincode } = geoData;
-    // create address object
-    const newAddress = {
-      label: safeLabel,
-      city,
-      state,
-      pincode,
-      location: {
-        type: "Point",
-        coordinates: [parseFloat(lng), parseFloat(lat)], // [lng, lat]
-      },
-    };
-    // add to user addresses
-    user.addresses.push(newAddress);
-    await user.save();
-    return Response(res, 200, "Address added successfully", {
-      city,
-      state,
-      pincode,
-    });
-  } catch (error) {
-    console.error("Failed to add address from coords", error);
-    return Response(res, 500, "Internal server error");
-  }
-};
+
 module.exports = {
   UpdateUserProfile,
   AddnewAddress,
   UpdateAddress,
   GetUserAddresses,
   DeleteAddress,
-  AddAddressFromCoords,
-};
+}; 
+
+

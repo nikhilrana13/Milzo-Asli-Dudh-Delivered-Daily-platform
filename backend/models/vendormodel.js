@@ -21,11 +21,9 @@ const vendorSchema = new mongoose.Schema(
       type: {
         type: String,
         enum: ["Point"],
-        default: "Point",
       },
       coordinates: {
         type: [Number], // [lng, lat]
-        required: true,
       },
     },
     city: { type: String, default: "", trim: true },
@@ -34,6 +32,7 @@ const vendorSchema = new mongoose.Schema(
       default: "",
       match: [/^[0-9]{6}$/, "Invalid pincode"],
     },
+    description:{type:String,default:"",maxlength:200},
     contactnumbers: [{ type: String, default: "" }],
     dairyImages: [{ url: { type: String }, fileId: { type: String } }],
     dairyVideos: [{ url: { type: String }, fileId: { type: String } }],

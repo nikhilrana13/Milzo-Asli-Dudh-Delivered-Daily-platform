@@ -332,9 +332,9 @@ const DeleteProduct = async (req, res) => {
 const UpdateProductStatus = async (req, res) => {
   try {
     const userId = req.user;
-    const productId = req.params.id
+    const productId = req.params.id;
     const { isAvailable } = req.body;
-     // check vendor exists or not
+    // check vendor exists or not
     const vendorexists = await Vendor.findById(userId);
     if (!vendorexists) {
       return Response(res, 401, "Vendor not found");
@@ -344,29 +344,34 @@ const UpdateProductStatus = async (req, res) => {
     }
     // allow only approved vendors
     if (vendorexists.kycStatus !== "approved") {
-      return Response(res,401,"You are not authorized to update Product status please Complete kyc",);
+      return Response(
+        res,
+        401,
+        "You are not authorized to update Product status please Complete kyc",
+      );
     }
-    const product = await Product.findById(productId)
-    if(!product){
-      return Response(res,400,"Product not found")
+    const product = await Product.findById(productId);
+    if (!product) {
+      return Response(res, 400, "Product not found");
     }
-    product.isAvailable = isAvailable
-    await product.save()
-    return Response(res,200,`Product ${isAvailable ? 'active' :'inactive'} successfully`)
+    product.isAvailable = isAvailable;
+    await product.save();
+    return Response(
+      res,
+      200,
+      `Product ${isAvailable ? "active" : "inactive"} successfully`,
+    );
   } catch (error) {
-    console.error("failed to update product status",error)
-    return Response(res,500,"Internal server error")
+    console.error("failed to update product status", error);
+    return Response(res, 500, "Internal server error");
   }
 };
-// find vendors based user selected location
-const FindVendors = async(req,res)=>{
-  try {
-    
-  } catch (error) {
-    
-  }
-}
 
 
-
-module.exports = {Addproduct,VendorAllProducts,UpdateProductDetails,DeleteProduct,UpdateProductStatus};
+module.exports = {
+  Addproduct,
+  VendorAllProducts,
+  UpdateProductDetails,
+  DeleteProduct,
+  UpdateProductStatus,
+};
