@@ -9,10 +9,16 @@ const adminRoute = require("./routes/adminroutes")
 const productRoute = require("./routes/productroutes")
 const userRoute = require("./routes/userroutes")
 const locationRoute = require("./routes/locationroutes")
+const WebhookRoute = require("./routes/stripewebhookroute")
+const BookingRoute = require("./routes/bookingroutes")
+
 dotenv.config()
 
 const PORT = process.env.PORT || 5000
 const app = express()
+// stripe webhook 
+app.use("/api",WebhookRoute)
+app.set("trust proxy", 1);
 
 // middlewares
 app.use(cors())
@@ -27,6 +33,7 @@ app.use("/api/admin",adminRoute)
 app.use("/api/products",productRoute)
 app.use("/api/user",userRoute)
 app.use("/api/location",locationRoute)
+app.use("/api/booking",BookingRoute)
 
 
 
