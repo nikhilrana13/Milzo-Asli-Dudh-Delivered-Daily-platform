@@ -17,6 +17,17 @@ const bookingSchema = new mongoose.Schema({
     default: "pending",
   },
   stripeSessionId: String,
+  deliveryAddress: {
+  label: String,
+  addressLine: String,
+  city: String,
+  state: String,
+  pincode: String,
+  location: {
+    type: { type: String, enum: ["Point"] },
+    coordinates: [Number],
+  },
+}
 }, { timestamps: true });
 
 const Booking = mongoose.model("Booking",bookingSchema)

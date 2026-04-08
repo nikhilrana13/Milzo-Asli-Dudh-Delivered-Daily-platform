@@ -11,6 +11,7 @@ const userRoute = require("./routes/userroutes")
 const locationRoute = require("./routes/locationroutes")
 const WebhookRoute = require("./routes/stripewebhookroute")
 const BookingRoute = require("./routes/bookingroutes")
+const SubscriptionRoute = require("./routes/subscriptionroutes")
 
 dotenv.config()
 
@@ -33,7 +34,8 @@ app.use("/api/admin",adminRoute)
 app.use("/api/products",productRoute)
 app.use("/api/user",userRoute)
 app.use("/api/location",locationRoute)
-app.use("/api/booking",BookingRoute)
+app.use("/api",BookingRoute)
+app.use("/api/subscriptions",SubscriptionRoute)
 
 
 

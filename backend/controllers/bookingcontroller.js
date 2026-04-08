@@ -21,6 +21,7 @@ const CreateSubscriptionBooking = async (req, res) => {
       startDate,
       endDate,
       deliveryTimings,
+      deliveryAddress,
     } = req.body;
     // Required fields
     const requiredFields = [
@@ -30,12 +31,14 @@ const CreateSubscriptionBooking = async (req, res) => {
       "unit",
       "pricePerDay",
       "endDate",
+      "deliveryAddress",
     ];
     for (let field of requiredFields) {
       if (!req.body[field]) {
         return Response(res, 400, `${field} is required`);
       }
     }
+
     // Type and value validation
     const parsedQuantity = Number(quantity);
     const parsedPricePerDay = Number(pricePerDay);
@@ -51,7 +54,7 @@ const CreateSubscriptionBooking = async (req, res) => {
       return Response(res, 400, "Invalid unit - must be ml, litre, g, or kg");
     }
     // Authentication && authorization
-    const user = await User.findById(userId);
+    const user = await User.findById(userId)
     if (!user || user.role !== "user") {
       return Response(res, 401, "Unauthorized - invalid user role");
     }
@@ -90,6 +93,15 @@ const CreateSubscriptionBooking = async (req, res) => {
     } catch {
       return Response(res, 400, "Invalid deliveryTimings format");
     }
+    let parsedDeliveryAddress = {};
+    try {
+      parsedDeliveryAddress = safeParse(deliveryAddress);
+    } catch (error) {
+      return Response(res, 400, "Invalid deliveryAddress format");
+    }
+    if (!parsedDeliveryAddress.city || !parsedDeliveryAddress.pincode || !parsedDeliveryAddress.addressLine) {
+      return Response(res, 400, "Incomplete delivery address ");
+    }
     // date calculation
     const start = startDate ? new Date(startDate) : new Date();
     const end = new Date(endDate);
@@ -110,7 +122,7 @@ const CreateSubscriptionBooking = async (req, res) => {
     const totalAmount = parsedPricePerDay * parsedQuantity * totalDays;
     // create booking
     const booking = await Booking.create({
-      userId,
+      userId:user._id,
       productId,
       vendorId,
       quantity: parsedQuantity,
@@ -122,6 +134,7 @@ const CreateSubscriptionBooking = async (req, res) => {
       endDate: end,
       deliveryTimings: parsedTimings,
       status: "pending",
+      deliveryAddress: parsedDeliveryAddress,
     });
     // create stripe session
     let session;
@@ -221,7 +234,9 @@ const StripeWebhookHandler = async (req, res) => {
           status: "active",
         });
         if (existingSub) {
-          console.log(`Active subscription already exists for user ${booking.userId}, product ${booking.productId}`);
+          console.log(
+            `Active subscription already exists for user ${booking.userId}, product ${booking.productId}`,
+          );
           return res.json({ received: true });
         }
         // Use transaction for atomic operations
@@ -233,29 +248,37 @@ const StripeWebhookHandler = async (req, res) => {
           await booking.save({ session: dbSession });
           // Create subscription
           await Subscription.create(
-            [{
-              userId: booking.userId,
-              vendorId: booking.vendorId,
-              productId: booking.productId,
-              quantity: booking.quantity,
-              unit: booking.unit,
-              pricePerDay: booking.pricePerDay,
-              totalDays: booking.totalDays,
-              totalAmount: booking.totalAmount,
-              startDate: booking.startDate,
-              endDate: booking.endDate,
-              deliveryTimings: booking.deliveryTimings,
-              paymentStatus: "paid",
-              bookingStatus: "pending",
-              status: "active",
-            }],
-            { session: dbSession }
+            [
+              {
+                userId: booking.userId,
+                vendorId: booking.vendorId,
+                productId: booking.productId,
+                quantity: booking.quantity,
+                unit: booking.unit,
+                pricePerDay: booking.pricePerDay,
+                totalDays: booking.totalDays,
+                totalAmount: booking.totalAmount,
+                startDate: booking.startDate,
+                endDate: booking.endDate,
+                deliveryTimings: booking.deliveryTimings,
+                paymentStatus: "paid",
+                bookingStatus: "pending",
+                status: "active",
+                deliveryAddress:booking.deliveryAddress
+              },
+            ],
+            { session: dbSession },
           );
           await dbSession.commitTransaction();
-          console.log(`Successfully processed payment for booking ${bookingId}`);
+          console.log(
+            `Successfully processed payment for booking ${bookingId}`,
+          );
         } catch (transactionError) {
           await dbSession.abortTransaction();
-          console.error(`Transaction failed for booking ${bookingId}:`, transactionError.message);
+          console.error(
+            `Transaction failed for booking ${bookingId}:`,
+            transactionError.message,
+          );
           throw transactionError;
         } finally {
           dbSession.endSession();
@@ -273,7 +296,9 @@ const StripeWebhookHandler = async (req, res) => {
         if (booking && booking.status === "pending") {
           booking.status = "failed";
           await booking.save();
-          console.log(`Marked booking ${bookingId} as failed due to session expiry`);
+          console.log(
+            `Marked booking ${bookingId} as failed due to session expiry`,
+          );
         }
         break;
       }
@@ -304,9 +329,6 @@ const UpdatePaymentStatus = async (req, res) => {
     if (!booking) {
       return Response(res, 404, "Booking not found");
     }
-    if (booking.user.toString() !== userId) {
-      return Response(res, 403, "Unauthorized");
-    }
     // Prevent double processing
     if (booking.status === "paid") {
       return Response(res, 400, "Booking already paid");
@@ -329,29 +351,37 @@ const UpdatePaymentStatus = async (req, res) => {
       await booking.save({ session: dbSession });
       // Create subscription
       await Subscription.create(
-        [{
-          userId: booking.userId,
-          vendorId: booking.vendorId,
-          productId: booking.productId,
-          quantity: booking.quantity,
-          unit: booking.unit,
-          pricePerDay: booking.pricePerDay,
-          totalDays: booking.totalDays,
-          totalAmount: booking.totalAmount,
-          startDate: booking.startDate,
-          endDate: booking.endDate,
-          deliveryTimings: booking.deliveryTimings,
-          paymentStatus: "paid",
-          bookingStatus: "pending",
-          status: "active",
-        }],
-        { session: dbSession }
+        [
+          {
+            userId: booking.userId,
+            vendorId: booking.vendorId,
+            productId: booking.productId,
+            quantity: booking.quantity,
+            unit: booking.unit,
+            pricePerDay: booking.pricePerDay,
+            totalDays: booking.totalDays,
+            totalAmount: booking.totalAmount,
+            startDate: booking.startDate,
+            endDate: booking.endDate,
+            deliveryTimings: booking.deliveryTimings,
+            paymentStatus: "paid",
+            bookingStatus: "pending",
+            status: "active",
+             deliveryAddress:booking.deliveryAddress
+          },
+        ],
+        { session: dbSession },
       );
       await dbSession.commitTransaction(); // save
-      console.log(`Successfully processed manual payment for booking ${bookingId}`);
+      // console.log(
+      //   `Successfully processed manual payment for booking ${bookingId}`,
+      // );
     } catch (transactionError) {
       await dbSession.abortTransaction(); // undo
-      console.error(`Transaction failed for booking ${bookingId}:`, transactionError.message);
+      console.error(
+        `Transaction failed for booking ${bookingId}:`,
+        transactionError.message,
+      );
       throw transactionError;
     } finally {
       dbSession.endSession();
@@ -362,8 +392,93 @@ const UpdatePaymentStatus = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
+// vendor all bookings 
+const VendorAllBookings = async(req,res)=>{
+   try {
+      const userId = req.user;
+      let { page = 1, limit = 6,status} = req.query;
+      page = parseInt(page);
+      limit = parseInt(limit);
+      const skip = (page - 1) * limit;
+      // check vendor exists or not
+      const vendorExists = await Vendor.findById(userId);
+      if (!vendorExists) {
+        return Response(res, 401, "Vendor not found");
+      }
+      if (vendorExists.role !== "vendor") {
+        return Response(res, 400, "You are not authorized to access this route");
+      }
+      let filter = { vendorId: vendorExists._id };
+      // category filter
+      if (status) {
+        filter.status = status;
+      }
+      const bookings = await Booking.find(filter).sort({ createdAt: 1}).skip(skip).limit(limit).populate("userId","username phoneNumber email").populate("productId", "productName images")
+      const totalBookings = await Booking.countDocuments(filter);
+      const totalPages = Math.ceil(totalBookings / limit);
+      if (bookings.length === 0) {
+        return Response(res, 200, "No Bookings found",[]);
+      }
+      return Response(res, 200, "Bookings found", {
+        bookings,
+        pagination: {
+          totalBookings,
+          totalPages,
+          currentPage: page,
+          limit,
+        },
+      });
+    } catch (error) {
+      console.error("failed to fetch vendor Bookings", error);
+      return Response(res, 500, "Internal server error");
+    }
+}
+// User all bookings 
+const UserAllBookings = async(req,res)=>{
+  try {
+    const userId = req.user;
+      let { page = 1, limit = 6,status} = req.query;
+      page = parseInt(page);
+      limit = parseInt(limit);
+      const skip = (page - 1) * limit;
+      // check vendor exists or not
+      const user = await User.findById(userId);
+      if (!user) {
+        return Response(res, 401, "User not found");
+      }
+      if (user.role !== "user") {
+        return Response(res, 400, "You are not authorized to access this route");
+      }
+      let filter = { userId: user._id };
+      // category filter
+      if (status) {
+        filter.status = status;
+      }
+      const bookings = await Booking.find(filter).sort({ createdAt: 1}).skip(skip).limit(limit).populate("vendorId","displayName contactnumbers email").populate("productId", "productName images")
+      const totalBookings = await Booking.countDocuments(filter);
+      const totalPages = Math.ceil(totalBookings / limit);
+      if (bookings.length === 0) {
+        return Response(res, 200, "No Bookings found",[]);
+      }
+      return Response(res, 200, "Bookings found", {
+        bookings,
+        pagination: {
+          totalBookings,
+          totalPages,
+          currentPage: page,
+          limit,
+        },
+      });
+  } catch (error) {
+    console.error("failed to fetch user Bookings", error);
+    return Response(res, 500, "Internal server error");
+  }
+}
 
-
-module.exports = {CreateSubscriptionBooking,StripeWebhookHandler,UpdatePaymentStatus}
-
-
+module.exports = {
+  CreateSubscriptionBooking,
+  StripeWebhookHandler,
+  UpdatePaymentStatus,
+  VendorAllBookings,
+  UserAllBookings
+};

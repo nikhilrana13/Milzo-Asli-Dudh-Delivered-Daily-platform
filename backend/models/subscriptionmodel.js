@@ -36,18 +36,34 @@ const subscriptionSchema = new mongoose.Schema(
         { slot: "evening", time: null },
       ],
     },
-    expiryDate:{type: Date},
+    expiryDate: { type: Date },
     paymentStatus: {
       type: String,
       enum: ["pending", "paid", "failed"],
       default: "pending",
     },
-    bookingStatus:{ type: String,
-      enum: ["pending", "cancelled", "confirm"],
-      default: "pending",},
-    bookingId:{type:mongoose.Types.ObjectId,ref:"Booking"}
-  },
-  { timestamps: true });
+    bookingStatus: {
+      type: String,
+      enum: ["pending", "cancelled", "confirmed"],
+      default: "pending",
+    },
+    bookingId: { type: mongoose.Types.ObjectId, ref: "Booking" },
+    deliveryAddress: {
+      label: String,
+      addressLine: String,
+      city: String,
+      state: String,
+      pincode: String,
+      location: {
+        type: { type: String, enum: ["Point"] },
+        coordinates: [Number],
+      },
+    },
+    pauseStartDate: {type:Date,default:null},
+    totalPausedDays: {type:Number,default:0}
+  },{ timestamps: true });
+
+subscriptionSchema.index({ userId: 1, status: 1 });
 
 const Subscription = mongoose.model("Subscription", subscriptionSchema);
 module.exports = Subscription;
