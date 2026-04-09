@@ -297,6 +297,7 @@ const VendorAllSubscriptions = async (req, res) => {
   }
 };
 
+
 module.exports = {
   UserSubscriptions,
   ConfirmOrCancelSubs,

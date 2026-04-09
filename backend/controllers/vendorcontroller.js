@@ -5,12 +5,10 @@ const { getCoordinates } = require("../utils/geolocations");
 const { uploadFiles, parseExisting, buildMedia } = require("../utils/helpers");
 const Response = require("../utils/responsehandler");
 const { uploadToImageKit, deleteFromImageKit } = require("../utils/upload");
-const {
-  safeParse,
-  validateContacts,
-  validateDeliveryTimings,
-  validateKycDetails,
-} = require("../utils/validations");
+const {safeParse,validateContacts,validateDeliveryTimings,validateKycDetails,} = require("../utils/validations");
+const Subscription = require("../models/subscriptionmodel");
+const mongoose = require("mongoose");
+const Booking = require("../models/bookingmodel");
 
 // apply kyc
 const ApplyKyc = async (req, res) => {
@@ -499,26 +497,276 @@ const FetchVendorAllproducts = async (req, res) => {
 // find vendor details
 const FetchVendorDetails = async (req, res) => {
   try {
-    const  vendorId  = req.params.id;
-    if(!vendorId){
-      return Response(res,400,"VendorId is Required")
+    const vendorId = req.params.id;
+    if (!vendorId) {
+      return Response(res, 400, "VendorId is Required");
     }
     // check vendor exists or not
-    const vendor = await Vendor.findById(vendorId).select("displayName rating totalReviews description kycStatus dairyImages dairyVideos")
+    const vendor = await Vendor.findById(vendorId).select(
+      "displayName rating totalReviews description kycStatus dairyImages dairyVideos",
+    );
     if (!vendor) {
       return Response(res, 404, "Vendor not found");
     }
-    return Response(res,200,{vendorDetails:vendor})
+    return Response(res, 200, { vendorDetails: vendor });
   } catch (error) {
-    console.error("failed to fetch vendor details",error)
+    console.error("failed to fetch vendor details", error);
     return Response(res, 500, "Internal server error");
   }
 };
+// vendor dashboard stats
+const VendorDashboardStats = async (req, res) => {
+  try {
+    const vendorId = req.user; 
+    // check vendor exists or not
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return Response(res, 404, "Vendor not found");
+    }
+    if (vendor.role !== "vendor") {
+      return Response(res, 401, "You are not authorized to access this route");
+    }
+    const vendorObjectId = new mongoose.Types.ObjectId(vendorId);
+    const startOfMonth = new Date(new Date().toISOString().slice(0, 7) + "-01");
+    
+    const [totalCustomersAgg, activeSubs, monthlyRevenue, pendingBookings] = await Promise.all([
+      // total customers 
+      Subscription.aggregate([
+        { $match: { vendorId: vendorObjectId } },
+        { $group: { _id: "$userId" } },
+        { $count: "totalCustomers" },
+      ]),
+      // active subs
+      Subscription.countDocuments({
+        vendorId: vendorObjectId,
+        status: "active",
+      }),
+      // monthly revenue 
+      Subscription.aggregate([
+        {
+          $match: {
+            vendorId: vendorObjectId,
+            paymentStatus: "paid",
+            createdAt: { $gte: startOfMonth },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            total: { $sum: "$totalAmount" },
+          },
+        },
+      ]),
+      // pending bookings 
+      Subscription.countDocuments({
+        vendorId: vendorObjectId,
+        bookingStatus: "pending",
+      }),
+    ]);
+     return Response(res, 200, "Dashboard stats", {
+      totalCustomers: totalCustomersAgg[0]?.totalCustomers || 0,
+      activeSubscriptions: activeSubs,
+      monthlyRevenue: monthlyRevenue[0]?.total || 0,
+      pendingBookings
+    });
+
+  } catch (error) {
+    console.log("Failed to get dashboard stats", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
+// revenue overview 
+const VendorRevenueOverview = async(req,res)=>{
+  try {
+    const vendorId = req.user;
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return Response(res, 404, "Vendor not found");
+    }
+    const vendorObjectId = new mongoose.Types.ObjectId(vendorId);
+    const range = parseInt(req.query.range) || 12;
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - range);
+
+    const monthlyRevenue = await Subscription.aggregate([
+      {
+        $match: {
+          vendorId: vendorObjectId,
+          paymentStatus: "paid",
+          createdAt: { $gte: startDate },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$createdAt" },
+            month: { $month: "$createdAt" },
+          },
+          revenue: { $sum: "$totalAmount" },
+        },
+      },
+      {
+        $sort: {
+          "_id.year": 1,
+          "_id.month": 1,
+        },
+      },
+    ]);
+
+    const monthNames = [
+      "", "Jan", "Feb", "Mar", "Apr", "May",
+      "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    ];
+
+    const monthsMap = {};
+    monthlyRevenue.forEach(item => {
+      const name = monthNames[item._id.month];
+      monthsMap[name] = item.revenue;
+    });
+    const finalRevenue = [];
+    const now = new Date();
+    for (let i = range - 1; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const name = monthNames[d.getMonth() + 1];
+
+      finalRevenue.push({
+        month: name,
+        revenue: monthsMap[name] || 0
+      });
+    }
+    const currentMonth = finalRevenue.at(-1)?.revenue || 0;
+    const lastMonth = finalRevenue.at(-2)?.revenue || 0;
+    let growth = 0;
+    if (lastMonth > 0) {
+      growth = ((currentMonth - lastMonth) / lastMonth) * 100;
+    } else if (currentMonth > 0) {
+      growth = 100;
+    }
+    return Response(res, 200, "Revenue analytics fetched", {
+      monthlyRevenue: finalRevenue,
+      growth: Number(growth.toFixed(1)),
+    });
+
+  } catch (error) {
+    console.error("Revenue analytics error", error);
+    return Response(res, 500, "Internal server error");
+  }
+}
+// subscriptions stats
+const VendorSubscriptionStats = async(req,res)=>{
+  try {
+    const vendorId = req.user; 
+    // check vendor exists or not
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return Response(res, 404, "Vendor not found");
+    }
+    if (vendor.role !== "vendor") {
+      return Response(res, 401, "You are not authorized to access this route");
+    }
+      const vendorObjectId = new mongoose.Types.ObjectId(vendorId);
+     const [totalSubs,activeSubs,cancelledSubs,completedSubs,pausedSubs,pendingBookings] = await Promise.all([
+       // total subs
+      Subscription.countDocuments({
+        vendorId: vendorObjectId,
+      }),
+      // active subs
+      Subscription.countDocuments({
+        vendorId: vendorObjectId,
+        status: "active",
+      }),
+      // cancelled 
+      Subscription.countDocuments({
+        vendorId: vendorObjectId,
+        status: "cancelled",
+      }),
+      // completed
+      Subscription.countDocuments({
+        vendorId: vendorObjectId,
+        status: "completed",
+      }),
+      // paused
+      Subscription.countDocuments({
+        vendorId: vendorObjectId,
+        status: "paused",
+      }),
+      // pending Subs 
+      Subscription.countDocuments({
+        vendorId: vendorObjectId,
+        bookingStatus: "pending",
+      }),
+    ]);
+     return Response(res, 200, "Vendor Subscription stats", {
+      totalSubs: totalSubs || 0,
+      activeSubs: activeSubs || 0,
+      cancelledSubs: cancelledSubs || 0,
+      completedSubs:completedSubs || 0,
+      pausedSubs: pausedSubs || 0,
+      pendingBookings:pendingBookings || 0
+    });
+      
+  } catch (error) {
+    console.log("Failed to get vendor subscription stats", error);
+    return Response(res, 500, "Internal server error");
+  }
+}
+// Booking status 
+const VendorBookingStats = async(req,res)=>{
+   try {
+    const vendorId = req.user; 
+    // check vendor exists or not
+    const vendor = await Vendor.findById(vendorId);
+    if (!vendor) {
+      return Response(res, 404, "Vendor not found");
+    }
+    if (vendor.role !== "vendor") {
+      return Response(res, 401, "You are not authorized to access this route");
+    }
+     const vendorObjectId = new mongoose.Types.ObjectId(vendorId);
+     const [totalBookings,paidBookings,failedBookings,pendingBookings] = await Promise.all([
+       // total Booking
+      Booking.countDocuments({
+        vendorId: vendorObjectId,
+      }),
+      // paid booking 
+      Booking.countDocuments({
+        vendorId: vendorObjectId,
+        status: "paid",
+      }),
+      // cancelled 
+      Booking.countDocuments({
+        vendorId: vendorObjectId,
+        status: "failed",
+      }),
+      // pending
+      Booking.countDocuments({
+        vendorId: vendorObjectId,
+        status: "pending",
+      }),
+    ]);
+     return Response(res, 200, "Vendor Booking stats", {
+      totalBookings: totalBookings || 0,
+      paidBookings: paidBookings || 0,
+      failedBookings: failedBookings || 0,
+      pendingBookings:pendingBookings || 0
+    });
+  } catch (error) {
+    console.log("Failed to get vendor booking stats", error);
+    return Response(res, 500, "Internal server error");
+  }
+}
+
+
 
 module.exports = {
   ApplyKyc,
   UpdateVendorProfile,
   FindVendors,
   FetchVendorAllproducts,
-  FetchVendorDetails
+  FetchVendorDetails,
+  VendorDashboardStats,
+  VendorRevenueOverview,
+  VendorSubscriptionStats,
+  VendorBookingStats
 };
+

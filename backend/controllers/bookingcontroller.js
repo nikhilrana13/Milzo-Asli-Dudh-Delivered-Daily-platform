@@ -473,7 +473,8 @@ const UserAllBookings = async(req,res)=>{
     console.error("failed to fetch user Bookings", error);
     return Response(res, 500, "Internal server error");
   }
-}
+} 
+
 
 module.exports = {
   CreateSubscriptionBooking,

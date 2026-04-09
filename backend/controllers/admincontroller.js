@@ -108,5 +108,4 @@ const ApproveAndRejectVendor = async (req, res) => {
 
 
 
-
 module.exports = { GetAllVendors,ApproveAndRejectVendor};

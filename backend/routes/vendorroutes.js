@@ -4,8 +4,7 @@ const multer = require("multer")
 const AuthMiddleware = require("../middlewares/authmiddleware")
 const IsVendor = require("../middlewares/isvendor")
 const FileFilter = require("../utils/multervalidation")
-const { ApplyKyc, UpdateVendorProfile, FindVendors, FetchVendorAllproducts, FetchVendorDetails } = require("../controllers/vendorcontroller")
-const IsUser = require("../middlewares/isuser")
+const { ApplyKyc, UpdateVendorProfile, FindVendors, FetchVendorAllproducts, FetchVendorDetails, VendorDashboardStats, VendorRevenueOverview, VendorSubscriptionStats, VendorBookingStats } = require("../controllers/vendorcontroller")
 //multer config
 const storage = multer.memoryStorage()
 const upload = multer({storage,limits:{
@@ -23,9 +22,15 @@ router.put("/vendor/update-profile",AuthMiddleware,IsVendor,upload.fields([
     {name:"videos",maxCount:2},
     {name:"profilePic",maxCount:1}
 ]),UpdateVendorProfile)
+// public routes
 router.get("/vendors/find",FindVendors)
 router.get("/vendor/products",FetchVendorAllproducts)
 router.get("/vendor/:id",FetchVendorDetails)
+// vendor dashboard routes 
+router.get("/vendor/dashboard/stats",AuthMiddleware,IsVendor,VendorDashboardStats)
+router.get("/vendor/dashboard/revenue-overview",AuthMiddleware,IsVendor,VendorRevenueOverview)
+router.get("/vendor/subscriptions/stats",AuthMiddleware,IsVendor,VendorSubscriptionStats)
+router.get("/vendor/bookings/stats",AuthMiddleware,IsVendor,VendorBookingStats) 
 
 
 module.exports = router
