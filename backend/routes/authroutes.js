@@ -29,9 +29,9 @@ router.get("/logout",Logout)
 router.post("/test-google",async (req, res) => {
   try {
     const fakeDecodedUser = {
-      uid: "testuid123",
-      email: "test@gmail.com",
-      name: "Test User",
+      uid: "testuid1234",
+      email: "test123@gmail.com",
+      name: "Test User 1",
       picture:"test.jpg"
     };
     req.user = fakeDecodedUser;
