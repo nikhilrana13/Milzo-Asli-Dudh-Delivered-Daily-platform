@@ -282,4 +282,27 @@ const ApplyOffer = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
-module.exports = { GetAllVendors, ApproveAndRejectVendor, CreateCampaign,GetAllCampaigns,ApplyOffer};
+const ToggleCampaignStatus = async (req, res) => {
+  try {
+    const adminId = req.user;
+    const { campaignId } = req.params.id;
+    const admin = await Admin.findById(adminId);
+    if (!admin || admin.role !== "admin") {
+      return Response(res, 403, "Forbidden");
+    }
+    const campaign = await Campaign.findById(campaignId);
+    if (!campaign) {
+      return Response(res, 404, "Campaign not found");
+    }
+    campaign.isActive = !campaign.isActive;
+    await campaign.save();
+    return Response(res, 200, "Campaign status updated", {
+      isActive: campaign.isActive,
+    });
+  } catch (error) {
+    console.error("Toggle campaign error", error);
+    return Response(res, 500, "Internal server error");
+  }
+};
+
+module.exports = { GetAllVendors, ApproveAndRejectVendor, CreateCampaign,GetAllCampaigns,ApplyOffer,ToggleCampaignStatus};
