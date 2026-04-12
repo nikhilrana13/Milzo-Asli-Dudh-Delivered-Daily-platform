@@ -115,8 +115,5 @@ const GetProductReviews = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
-
 module.exports = {AddReview,GetProductReviews}
-
-
 
