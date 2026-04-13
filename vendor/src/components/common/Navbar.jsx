@@ -7,12 +7,12 @@ const Navbar = () => {
                     {/* logo */}
                     <div>
                         <span className="text-[#166534] font-[700] tracking-tight text-[1.4rem] md:text-[1.8rem]">
-                            Milzo
+                           Milzo
                         </span>
                     </div>
                     {/* left buttons */}
                     <div>
-                        <button className="bg-gradient-to-br from-[#006e2f] from-0% to-[#22c55e] to-100% text-white px-6 py-2.5 rounded-full  font-medium text-sm tracking-tight shadow-md hover:scale-105 transition-transform duration-200 ease-out active:scale-95">Login</button>
+                        <button className="bg-gradient-to-br from-[#006e2f] from-0% to-[#22c55e] to-100% text-white px-6 py-2.5 rounded-full  font-medium text-sm tracking-tight shadow-md hover:scale-105 transition-transform duration-200 ease-out active:scale-95">Join Milzo</button>
                     </div>
                 </nav>
     </header>

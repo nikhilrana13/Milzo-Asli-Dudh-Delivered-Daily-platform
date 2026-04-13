@@ -12,8 +12,8 @@ const Avatorsimg = [
     {id:0,img:user1},
     {id:1,img:user2},
     {id:2,img:user3}
-
 ]
+
 const HeroSection = () => {
   return (
   <section className="max-w-7xl mx-auto  px-4 sm:px-6 lg:px-8 mb-20 lg:mb-28 grid lg:grid-cols-2 gap-12 items-center">
