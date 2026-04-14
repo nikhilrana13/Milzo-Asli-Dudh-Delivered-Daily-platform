@@ -39,10 +39,10 @@ const vendorSchema = new mongoose.Schema(
     isActive: { type: Boolean, default: false },
     isKycApproved: { type: Boolean, default: false },
     kycDetails: {
-      aadharNumber: { type: String },
+      aadharNumber: { type: String,unique:true,sparse:true },
       aadharImages: [{ type: String }],
-      bankAccountNumber: { type: String, default: "" },
-      ifscCode: { type: String, default: "" },
+      bankAccountNumber: { type: String, default: "",sparse:true },
+      ifscCode: { type: String, default: "",sparse:true },
     },
     milkLabTestImg: { type: String, default: "" },
     kycStatus: {

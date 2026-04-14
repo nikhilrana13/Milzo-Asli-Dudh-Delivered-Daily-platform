@@ -23,7 +23,10 @@ app.use("/api",WebhookRoute)
 app.set("trust proxy", 1);
 
 // middlewares
-app.use(cors())
+app.use(cors({
+    origin:process.env.FRONTEND_URL,
+    credentials:true
+}))
 app.use(express.json())
 app.use(cookieParser())
 app.use(express.urlencoded({extended:false}))

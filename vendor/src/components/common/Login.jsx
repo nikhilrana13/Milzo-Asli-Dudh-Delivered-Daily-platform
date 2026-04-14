@@ -1,8 +1,47 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MdGrass, MdLock, MdMail, MdVerifiedUser } from 'react-icons/md';
 import {motion} from "framer-motion"
+import { useForm } from 'react-hook-form';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { SetUser } from '@/redux/AuthSlice';
+import { RotatingLines } from 'react-loader-spinner';
+import { useDialog } from '@/context/useDialog';
 
 const Login = ({setStep}) => {
+   const [loading, setLoading] = useState(false)
+   const { register, handleSubmit, formState: { errors } } = useForm()
+   const navigate = useNavigate()
+   const dispatch = useDispatch()
+   const {setLoginDialogOpen} = useDialog()
+
+    const onSubmit = async (data) => {
+    const formdata = {
+      email: data.email,
+      password: data.password
+    }
+    try {
+      setLoading(true)
+      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/vendor-Login`, formdata)
+      if (response?.data) {
+        toast.success(response?.data?.message)
+        const user = response?.data?.data?.user 
+        const token = response?.data?.data?.token 
+        localStorage.setItem("token",token)
+        dispatch(SetUser(user))
+        navigate("/vendor/dashboard")
+        setLoginDialogOpen(false)
+      }
+    } catch (error) {
+      console.error("failed to Login vendor", error)
+      toast.error(error?.response?.data?.message || "Internal server error")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <>
     {/* Brand */}
@@ -18,7 +57,7 @@ const Login = ({setStep}) => {
         </p>
       </div>
       {/* Form */}
-      <form className="w-full space-y-5 sm:space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="w-full space-y-5 sm:space-y-6">
         {/* Email */}
         <div className="space-y-1.5 sm:space-y-2">
           <label className="block text-xs font-semibold text-[#3d4a3d] ml-1">
@@ -28,10 +67,18 @@ const Login = ({setStep}) => {
             <MdMail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#6d7b6c] group-focus-within:text-[#006e2f] transition-colors" />
             <input
               type="email"
+              name='email'
               placeholder="jane@creamery.com"
               className="w-full pl-12 pr-4 py-3 sm:py-4 bg-[#e7e8ea] rounded-lg focus:ring-2 focus:ring-[#006e2f]/20 focus:bg-white transition-all placeholder:text-[#6d7b6c] outline-none"
+               {...register("email", {
+                required: "Email is Required", pattern: {
+                  value: /^\S+@\S+$/i,
+                  message: "Invalid email address"
+                }
+              })}
             />
           </div>
+           {errors.email && <p className='text-sm text-red-500'>{errors?.email?.message}</p>}
         </div>
         {/* Password */}
         <div className="space-y-1.5 sm:space-y-2">
@@ -51,17 +98,41 @@ const Login = ({setStep}) => {
             <input
               type="password"
               placeholder="••••••••"
+              name='password'
               className="w-full pl-12 pr-4 py-3 sm:py-4 bg-[#e7e8ea] rounded-lg focus:ring-2 focus:ring-[#006e2f]/20 focus:bg-white transition-all placeholder:text-[#6d7b6c] outline-none"
+              {...register("password", {
+                required: "Password is Required", minLength: {
+                  value: 6,
+                  message: "Minimum 6 characters required"
+                }
+              })}
             />
           </div>
+           {errors.password && <p className='text-sm text-red-500'>{errors?.password?.message}</p>}
         </div>
         <motion.button
           whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           type="submit"
-          className="w-full py-3 sm:py-4 bg-gradient-to-r from-[#006e2f] to-[#4ae176] text-white font-bold rounded-lg shadow-lg shadow-[#006e2f]/10 transition-all"
+          className="w-full py-3 sm:py-4 bg-gradient-to-r from-[#006e2f] to-[#4ae176] text-white font-bold rounded-lg shadow-lg shadow-[#006e2f]/10 transition-all flex justify-center items-center"
         >
-          Vendor Login
+          {
+            loading ? (
+              <RotatingLines
+                visible={true}
+                height="24"
+                width="24"
+                color="#ffffff"
+                strokeWidth="5"
+                animationDuration="0.75"
+                ariaLabel="rotating-lines-loading"
+                wrapperStyle={{}}
+                wrapperClass=""
+              />
+            ) : (
+              "Vendor Login"
+            )
+          }
         </motion.button>
       </form>
       <div className="mt-8 pt-6 sm:pt-8 border-t border-[#bccbb9]/10 w-full text-center">
