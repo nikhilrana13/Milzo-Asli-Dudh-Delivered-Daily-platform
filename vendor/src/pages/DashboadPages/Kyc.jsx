@@ -1,12 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import BusinessInformation from './kycSteps/BusinessInformation';
 import KycDocuments from './kycSteps/KycDocuments';
 import BankDetails from './kycSteps/BankDetails';
 import MediaLogistics from './kycSteps/MediaLogistics';
 import { MdArrowBack, MdArrowForward } from 'react-icons/md';
 import { motion } from "framer-motion"
+import { FormProvider, useForm } from 'react-hook-form';
 
 const Kyc = () => {
+  const [loading,setLoading] = useState(false)
+  const methods = useForm({
+    mode:"onChange",
+    defaultValues:{
+      displayName:"",
+      city:"",
+      pincode:"",
+      contactnumbers:[],
+      deliveryTimings:[],
+      kycDetails:{
+      aadharNumber:"",
+      aadharImages: [],
+      bankAccountNumber:"",
+      ifscCode: "",
+      },
+      images:[],
+      videos:[],
+      milkLabTestImg:""       
+    }
+  })
+  const {handleSubmit,trigger,watch,getValues} = methods 
+
+  const onSubmit = async(data)=>{
+    console.log("data",data)
+  }
   return (
     <div className='w-full p-5 flex flex-col gap-5 '>
       <div className="space-y-4 ">
@@ -23,8 +49,9 @@ const Kyc = () => {
         </p>
       </div>
       {/* steps */}
-      <div className='flex flex-col p-5 border '>
-        <form className='space-y-6'>
+      <div  className='flex flex-col p-5'>
+        <FormProvider {...methods}>
+          <form onSubmit={handleSubmit(onSubmit)} className='space-y-6'>
           <BusinessInformation />
           <KycDocuments />
           <BankDetails />
@@ -42,6 +69,8 @@ const Kyc = () => {
             </motion.button>
           </div>
         </form>
+        </FormProvider>
+      
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ const vendorSchema = new mongoose.Schema(
       aadharNumber: { type: String,unique:true,sparse:true },
       aadharImages: [{ type: String }],
       bankAccountNumber: { type: String, default: "",sparse:true },
-      ifscCode: { type: String, default: "",sparse:true },
+      ifscCode: { type: String, default: "",sparse:true},
     },
     milkLabTestImg: { type: String, default: "" },
     kycStatus: {
