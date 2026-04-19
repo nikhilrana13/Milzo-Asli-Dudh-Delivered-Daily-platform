@@ -9,6 +9,7 @@ import { useDispatch } from 'react-redux';
 import { SetUser } from '@/redux/AuthSlice';
 import { RotatingLines } from 'react-loader-spinner';
 import { useDialog } from '@/context/useDialog';
+import { api } from '@/utils/api';
 
 const Login = ({setStep}) => {
    const [loading, setLoading] = useState(false)
@@ -24,14 +25,18 @@ const Login = ({setStep}) => {
     }
     try {
       setLoading(true)
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/vendor-Login`, formdata)
-      if (response?.data) {
-        toast.success(response?.data?.message)
-        const user = response?.data?.data?.user 
-        const token = response?.data?.data?.token 
+      const response = await api.post("/api/auth/vendor-Login", formdata)
+      if (response) {
+        toast.success(response?.message)
+        const user = response?.data?.user 
+        const token = response?.data?.token 
         localStorage.setItem("token",token)
         dispatch(SetUser(user))
-        navigate("/vendor/dashboard")
+        if(user?.kycStatus === "approved"){
+          navigate("/vendor/dashboard")
+        }else{
+          navigate("/vendor/kyc")
+        }
         setLoginDialogOpen(false)
       }
     } catch (error) {

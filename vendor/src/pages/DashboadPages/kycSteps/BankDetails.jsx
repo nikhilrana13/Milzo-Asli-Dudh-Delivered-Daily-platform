@@ -33,7 +33,7 @@ const BankDetails = () => {
                 e.target.value = e.target.value.replace(/\D/g, "");
               }}
               className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-[#e1e2e4] rounded-xl focus:ring-2 focus:ring-[#006e2f]/20 focus:bg-white transition-all outline-none pr-12"
-              {...register("bankAccountNumber", {
+              {...register("kycDetails.bankAccountNumber", {
                 required: "Account Number is required", pattern: {
                   value: /^[0-9]{18}$/,
                   message: "Account number must be 9–18 digits"
@@ -50,8 +50,8 @@ const BankDetails = () => {
               {showAccount ? "Hide" : "Show"}
             </button>
           </div>
-          {errors.bankAccountNumber && (
-            <p className='text-red-500 text-sm'>{errors?.bankAccountNumber?.message}</p>
+          {errors?.kycDetails?.bankAccountNumber && (
+            <p className='text-red-500 text-sm'>{errors?.kycDetails?.bankAccountNumber?.message}</p>
           )}
         </div>
 
@@ -68,15 +68,15 @@ const BankDetails = () => {
               e.target.value = e.target.value.toUpperCase();
             }}
             className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-[#e1e2e4] rounded-xl focus:ring-2 focus:ring-[#006e2f]/20 focus:bg-white transition-all outline-none"
-            {...register("ifscCode", {
+            {...register("kycDetails.ifscCode", {
               required: "Ifsc code is required", pattern: {
                 value: /^[A-Z]{4}0[A-Z0-9]{6}$/,
                 message: "Invalid IFSC code"
               },
             })}
           />
-          {errors.ifscCode && (
-            <p className='text-red-500 text-sm'>{errors?.ifscCode?.message}</p>
+          {errors?.kycDetails?.ifscCode && (
+            <p className='text-red-500 text-sm'>{errors?.kycDetails?.ifscCode?.message}</p>
           )}
         </div>
         {/* Info Box */}

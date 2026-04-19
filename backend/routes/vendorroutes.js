@@ -8,7 +8,7 @@ const { ApplyKyc, UpdateVendorProfile, FindVendors, FetchVendorAllproducts, Fetc
 //multer config
 const storage = multer.memoryStorage()
 const upload = multer({storage,limits:{
-    fileSize: 11 * 1024 * 1024 // 11 mb max
+    fileSize: 20 * 1024 * 1024 // 11 mb max
 },fileFilter:FileFilter})
 
 router.post("/vendor/apply-kyc",AuthMiddleware,IsVendor,upload.fields([

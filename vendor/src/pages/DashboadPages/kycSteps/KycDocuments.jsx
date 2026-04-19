@@ -67,7 +67,7 @@ const KycDocuments = () => {
             }}
             maxLength={12}
             className="w-full px-4 sm:px-5 py-3 sm:py-4 bg-[#e1e2e4] rounded-xl focus:ring-2 focus:ring-[#006e2f]/20 focus:bg-white transition-all outline-none"
-            {...register("aadharNumber", {
+            {...register("kycDetails.aadharNumber", {
               required: "Aadhar Number is Required",
               maxLength: {
                 value: 12,
@@ -79,9 +79,9 @@ const KycDocuments = () => {
               },
             })}
           />
-          {errors.aadharNumber && (
+          {errors?.kycDetails?.aadharNumber && (
             <p className="text-red-500 text-sm">
-              {errors.aadharNumber.message}
+              {errors?.kycDetails?.aadharNumber?.message}
             </p>
           )}
         </div>
@@ -90,7 +90,7 @@ const KycDocuments = () => {
           <label className="block text-sm font-semibold text-[#3d4a3d] ml-1">
             Aadhar Card (Front & Back)
           </label>
-          <Controller name='aadharImages' control={control} defaultValue={[]} rules={{
+          <Controller name='kycDetails.aadharImages' control={control} defaultValue={[]} rules={{
             validate: (value) => {
               if (!value || value.length === 0) {
                 return "Aadhar images are required";
@@ -140,9 +140,9 @@ const KycDocuments = () => {
               </div>
             </>
           )} />
-          {errors.aadharImages && (
+          {errors?.kycDetails?.aadharImages && (
             <p className="text-red-500 text-sm mt-2">
-              {errors.aadharImages.message}
+              {errors?.kycDetails?.aadharImages?.message}
             </p>
           )}
         </div>
@@ -201,9 +201,9 @@ const KycDocuments = () => {
                     </button>
                   </div>
                 )}
-                {errors.milkLabTestImg && (
+                {errors?.milkLabTestImg && (
                   <p className="text-red-500 py-3 text-sm">
-                    {errors.milkLabTestImg.message}
+                    {errors?.milkLabTestImg.message}
                   </p>
                 )}
               </>

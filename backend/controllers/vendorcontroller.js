@@ -28,7 +28,7 @@ const ApplyKyc = async (req, res) => {
       deliveryTimings,
       contactnumbers,
     } = req.body;
-    // console.log("req.body",req.body)
+    console.log("req.body",req.body)
     // Extract uploaded files with safe fallback
     const dairyImages = req.files?.images || [];
     const dairyVideos = req.files?.videos || [];

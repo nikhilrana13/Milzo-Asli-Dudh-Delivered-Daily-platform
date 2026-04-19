@@ -1,9 +1,72 @@
-import React from 'react';
-import { MdAdd, MdAddAPhoto, MdVideoCall } from 'react-icons/md';
+import React, { useRef } from 'react';
+import { Controller, useFormContext } from 'react-hook-form';
+import { MdAddAPhoto, MdClose, MdVideoCall } from 'react-icons/md';
+import { toast } from 'react-toastify';
 
 const MediaLogistics = () => {
+  const { register, control, getValues, formState: { errors } } = useFormContext()
+  const imgRef = useRef();
+  const videoRef = useRef()
+  //  for images  and videos
+  const handleFileChange = (e, onChange, value, type) => {
+    const files = Array.from(e.target.files)
+    const currentFiles = value || []
+    // limits
+    const limits = {
+      image: 5,
+      video: 2,
+    };
+    const maxSize = {
+      image: 5 * 1024 * 1024,
+      video: 20 * 1024 * 1024, // 20MB
+    };
+    const remaining = limits[type] - currentFiles.length;
+    if (remaining <= 0) {
+      toast.error(`Max ${limits[type]} ${type}s allowed`);
+      return;
+    }
+    const allowedFiles = files.slice(0, remaining);
+    // images
+    if (type === "image") {
+      const validFiles = allowedFiles.filter((file) => {
+        if (file.size > maxSize.image) {
+          toast.error("Image too large");
+          return false;
+        }
+        return true;
+      });
+      onChange([...currentFiles, ...validFiles]);
+    }
+    // videos
+    if (type === "video") {
+      allowedFiles.forEach((file) => {
+        if (file.size > maxSize.video) {
+          toast.error("Video too large");
+          return;
+        }
+        const video = document.createElement("video");
+        video.preload = "metadata";
+
+        video.onloadedmetadata = () => {
+          URL.revokeObjectURL(video.src);
+
+          if (video.duration > 15) {
+            toast.error("Video must be under 15 seconds");
+          } else {
+            onChange([...currentFiles, file]);
+          }
+        };
+        video.src = URL.createObjectURL(file);
+      });
+    }
+  }
+  // remove
+  const handleRemove = (index, value, onChange) => {
+    const updated = value.filter((_, i) => i !== index);
+    onChange(updated);
+  };
   return (
-      <section className="space-y-6">
+    <section className="space-y-6">
       {/* Header */}
       <div className="flex items-center gap-4 mb-2">
         <div className="h-9 w-9 sm:h-10 sm:w-10 rounded-full bg-[#006e2f] flex items-center justify-center text-white font-bold">
@@ -13,113 +76,179 @@ const MediaLogistics = () => {
           Media & Logistics
         </h2>
       </div>
-      <div className="space-y-8 p-5 sm:p-8 bg-white rounded-xl shadow-sm border border-[#bccbb9]/20">
-        <div className="grid grid-cols-4 grid-rows-2 gap-3 sm:gap-4 h-[260px] sm:h-80">
-          
-          {/* Main Image */}
-          <div
-            className="col-span-2 row-span-2 rounded-xl overflow-hidden relative group cursor-pointer bg-[#e1e2e4]"
-          >
-            {/* {formData.mainImage ? (
-              <img
-                src={URL.createObjectURL(formData.mainImage)}
-                className="w-full h-full object-cover group-hover:scale-105 transition"
+      {/* IMAGES */}
+      <Controller
+        name="images"
+        control={control}
+        defaultValue={[]}
+        rules={{
+          validate: (value) =>
+            value && value.length > 0 || "At least 1 image is required"
+        }}
+
+        render={({ field: { onChange, value } }) => (
+          <>
+            <div className="grid grid-cols-3 gap-4">
+              {/* Upload Card */}
+              <div
+                onClick={() => imgRef.current.click()}
+                className="h-32 flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer hover:border-[#006e2f]"
+              >
+                <MdAddAPhoto size={28} />
+                <p className="text-xs mt-1">Add Images</p>
+              </div>
+
+              {/* Hidden Input */}
+              <input
+                ref={imgRef}
+                type="file"
+                multiple
+                accept="image/*"
+                hidden
+                onChange={(e) =>
+                  handleFileChange(e, onChange, value, "image")
+                }
               />
-            ) : (
-              <div className="flex items-center justify-center h-full text-[#6d7b6c]">
-                <MdAddAPhoto className="text-3xl" />
-              </div>
-            )} */}
-             <div className="flex items-center justify-center h-full text-[#6d7b6c]">
-                <MdAddAPhoto className="text-3xl" />
-              </div>
 
-            <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-              <MdAddAPhoto className="text-white text-2xl" />
+              {/* Preview */}
+              {value?.map((file, i) => (
+                <div key={i} className="relative h-32">
+                  <img
+                    src={URL.createObjectURL(file)}
+                    className="w-full h-full object-cover rounded-xl"
+                  />
+
+                  <button
+                    onClick={() => handleRemove(i, value, onChange)}
+                    className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1"
+                  >
+                    <MdClose size={16} />
+                  </button>
+                </div>
+              ))}
             </div>
+          </>
+        )}
+      />
+      {errors?.images && (
+        <p className="text-red-500 text-sm mt-1">
+          {errors.images.message}
+        </p>
+      )}
+      {/* VIDEO */}
+      <Controller
+        name="videos"
+        control={control}
+        defaultValue={[]}
+        render={({ field: { onChange, value } }) => (
+          <>
+            <div className="mt-4 space-y-3">
+              {/* Upload Card */}
+              <div
+                onClick={() => videoRef.current.click()}
+                className="h-32 flex flex-col items-center justify-center border-2 border-dashed rounded-xl cursor-pointer hover:border-[#006e2f] transition"
+              >
+                <MdVideoCall size={28} />
+                <p className="text-xs mt-1">Upload Video (≤15s)</p>
+              </div>
+              {/* Hidden Input */}
+              <input
+                ref={videoRef}
+                type="file"
+                accept="video/*"
+                hidden
+                onChange={(e) =>
+                  handleFileChange(e, onChange, value, "video")
+                }
+              />
+              {/* Preview */}
+              {value?.map((file, i) => {
+                return (
+                  <div key={i} className="relative w-full">
+                    <video
+                      src={URL.createObjectURL(file)}
+                      className="w-full h-44 object-cover rounded-xl shadow"
+                      controls
+                    />
+                    {/* Remove Button */}
+                    <button
+                      onClick={() => handleRemove(i, value, onChange)}
+                      className="absolute top-2 right-2 bg-black/70 text-white rounded-full p-2 hover:bg-black"
+                    >
+                      <MdClose size={18} />
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          </>
+        )}
+      />
+      {/* Delivery Timings */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-bold text-[#191c1e]">
+          Delivery Timings
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
+          {/* Morning */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-[#6d7b6c] uppercase">
+              Morning Slot
+            </label>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <input
+                type="hidden"
+                value="morning"
+                {...register("deliveryTimings.0.slot")}
+              />
+              <input
+                type="time"
+                className="flex-1 px-3 py-2 sm:px-4 sm:py-3 bg-[#e1e2e4] rounded-xl outline-none focus:ring-2 focus:ring-[#006e2f]/20"
+                {...register("deliveryTimings.0.time", {
+                  required: "Morning time is required"
+                })}
+              />
+            </div>
+            {errors?.deliveryTimings?.[0]?.time && (
+              <p className="text-red-500 text-xs">
+                {errors.deliveryTimings[0].time.message}
+              </p>
+            )}
+          </div>
+          {/* Evening */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-[#6d7b6c] uppercase">
+              Evening Slot
+            </label>
 
-            <input
-              type="file"
-              accept="image/*"
-              hidden
-            />
+            <div className="flex items-center gap-2 sm:gap-3">
+              <input
+                type="hidden"
+                value="evening"
+                {...register("deliveryTimings.1.slot")}
+              />
+              <input
+                type="time"
+                {...register("deliveryTimings.1.time", {
+                  validate: (value) => {
+                    const morning = getValues("deliveryTimings.0.time");
+                    if (morning && value && value <= morning) {
+                      return "Evening must be after morning";
+                    }
+                    return true;
+                  }
+                })}
+                className="flex-1 px-3 py-2 sm:px-4 sm:py-3 bg-[#e1e2e4] rounded-xl outline-none focus:ring-2 focus:ring-[#006e2f]/20"
+              />
+            </div>
+             {errors?.deliveryTimings?.[1]?.time && (
+                <p className="text-red-500 text-xs">
+                  {errors.deliveryTimings[1].time.message}
+                </p>
+              )}
           </div>
 
-          {/* Gallery */}
-          <div
-            className="col-span-2 row-span-1 rounded-xl overflow-hidden relative group cursor-pointer bg-[#e1e2e4] flex items-center justify-center"
-          >
-            <span className="text-sm font-medium text-[#3d4a3d] bg-black/40 text-white px-3 py-1 rounded-full">
-              + Upload Gallery
-            </span>
-            <input
-              type="file"
-              multiple
-              accept="image/*"
-              hidden
-            />
-          </div>
-
-          {/* Video */}
-          <div className="col-span-1 flex items-center justify-center rounded-xl border-2 border-dashed border-[#bccbb9]/40 bg-[#f3f4f6]">
-            <MdVideoCall className="text-[#6d7b6c] text-xl" />
-          </div>
-
-          {/* Add more */}
-          <div className="col-span-1 flex items-center justify-center rounded-xl border-2 border-dashed border-[#bccbb9]/40 bg-[#f3f4f6]">
-            <MdAdd className="text-[#6d7b6c] text-xl" />
-          </div>
         </div>
-
-        {/* Delivery Timings */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-bold text-[#191c1e]">
-            Delivery Timings
-          </h3>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6">
-            
-            {/* Morning */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#6d7b6c] uppercase">
-                Morning Slot
-              </label>
-
-              <div className="flex items-center gap-2 sm:gap-3">
-                <input
-                  type="time"
-                  className="flex-1 px-3 py-2 sm:px-4 sm:py-3 bg-[#e1e2e4] rounded-xl outline-none focus:ring-2 focus:ring-[#006e2f]/20"
-                />
-                <span className="text-[#3d4a3d] text-sm">to</span>
-                <input
-                  type="time"
-                  className="flex-1 px-3 py-2 sm:px-4 sm:py-3 bg-[#e1e2e4] rounded-xl outline-none focus:ring-2 focus:ring-[#006e2f]/20"
-                />
-              </div>
-            </div>
-
-            {/* Evening */}
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-[#6d7b6c] uppercase">
-                Evening Slot
-              </label>
-
-              <div className="flex items-center gap-2 sm:gap-3">
-                <input
-                  type="time"
-                  className="flex-1 px-3 py-2 sm:px-4 sm:py-3 bg-[#e1e2e4] rounded-xl outline-none focus:ring-2 focus:ring-[#006e2f]/20"
-                />
-                <span className="text-[#3d4a3d] text-sm">to</span>
-                <input
-                  type="time"
-                  className="flex-1 px-3 py-2 sm:px-4 sm:py-3 bg-[#e1e2e4] rounded-xl outline-none focus:ring-2 focus:ring-[#006e2f]/20"
-                />
-              </div>
-            </div>
-
-          </div>
-        </div>
-
       </div>
     </section>
   );

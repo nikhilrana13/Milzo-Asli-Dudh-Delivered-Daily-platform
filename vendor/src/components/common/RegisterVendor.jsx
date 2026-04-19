@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { RotatingLines } from 'react-loader-spinner';
+import { api } from '@/utils/api';
 
 const RegisterVendor = ({ setStep }) => {
   const [loading, setLoading] = useState(false)
@@ -19,9 +20,9 @@ const RegisterVendor = ({ setStep }) => {
     }
     try {
       setLoading(true)
-      const response = await axios.post(`${import.meta.env.VITE_BACKEND_URL}/api/auth/vendor-register`, formdata)
-      if (response?.data) {
-        toast.success(response?.data?.message)
+      const response = await api.post("/api/auth/vendor-register", formdata)
+      if (response) {
+        toast.success(response?.message)
         setTimeout(() => {
           setStep(1)
         }, 500);

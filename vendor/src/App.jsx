@@ -8,8 +8,10 @@ import "react-toastify/dist/ReactToastify.css";
 import Products from './pages/DashboadPages/Products';
 import Subscriptions from './pages/DashboadPages/Subscriptions';
 import Bookings from './pages/DashboadPages/Bookings';
-import Kyc from './pages/DashboadPages/Kyc';
+import Kyc from './pages/DashboadPages/KycForm';
 import Settings from './pages/DashboadPages/Settings';
+import KycLayout from './pages/DashboadPages/KycLayout';
+import KycProtectedRoute from './protectedRoutes/kycProtectedRoute';
 const App = () => {
   return (
     <div className='w-full'>
@@ -18,15 +20,19 @@ const App = () => {
         <Route path='/' element={<HomePage />} />
         {/* vendor Dashboard */}
         <Route path='/vendor' element={<DashboardLayout />}>
-        <Route index  element ={<Navigate to="dashboard" replace />} /> 
-        <Route path='dashboard' element={<Dashboard />} />
-        <Route path='products' element={<Products />} /> 
-        <Route path='subscriptions' element={<Subscriptions />} /> 
-        <Route path='bookings' element={<Bookings />} /> 
-        <Route path='kyc' element={<Kyc />} /> 
-        <Route path='settings' element={<Settings />} />
+          <Route index element={<Navigate to="dashboard" replace />} />
+          {/* always accessible */}
+          <Route path="kyc" element={<KycLayout />} />
+          {/* protected routes */}
+          <Route element={<KycProtectedRoute />}>
+            <Route path="dashboard" element={<Dashboard />} />
+            <Route path="products" element={<Products />} />
+            <Route path="subscriptions" element={<Subscriptions />} />
+            <Route path="bookings" element={<Bookings />} />
+            <Route path="settings" element={<Settings />} />
+          </Route>
+          
         </Route>
-         
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />
     </div>

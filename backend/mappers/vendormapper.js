@@ -8,5 +8,6 @@ const VendorMapper = (vendor)=>({
     isActive:vendor.isActive,
     kycStatus:vendor.kycStatus,
     isKycApproved:vendor.isKycApproved,
+    rejectedReason:vendor.rejectedReason
 })
 module.exports = VendorMapper
