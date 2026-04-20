@@ -5,6 +5,7 @@ import sessionStorage from "redux-persist/es/storage/session";
 import { AuthSlice } from "./AuthSlice";
 import { DashboardStatsApi } from "./api/DashboardStatsApi";
 import { RevenueOverviewApi } from "./api/RevenueOverviewApi";
+import { GetVendorProducts } from "./api/GetVendorProducts";
 
 
 const userpersistconfig={
@@ -16,11 +17,12 @@ const persistconfiguser = persistReducer(userpersistconfig,AuthSlice.reducer)
 const rootReducer = combineReducers({
     Auth:persistconfiguser,
     [DashboardStatsApi.reducerPath] : DashboardStatsApi.reducer,
-    [RevenueOverviewApi.reducerPath] : RevenueOverviewApi.reducer
+    [RevenueOverviewApi.reducerPath] : RevenueOverviewApi.reducer,
+    [GetVendorProducts.reducerPath] : GetVendorProducts.reducer
 
 })
 export const Store = configureStore({
     reducer:rootReducer,
-    middleware:(getDefaultMiddleware)=>getDefaultMiddleware({serializableCheck:false}).concat(DashboardStatsApi.middleware).concat(RevenueOverviewApi.middleware)
+    middleware:(getDefaultMiddleware)=>getDefaultMiddleware({serializableCheck:false}).concat(DashboardStatsApi.middleware).concat(RevenueOverviewApi.middleware).concat(GetVendorProducts.middleware)
 })
 export const Persistor = persistStore(Store)
