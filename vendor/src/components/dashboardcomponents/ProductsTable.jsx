@@ -1,4 +1,3 @@
-import { useGetVendorProductsQuery } from '@/redux/api/GetVendorProducts';
 import React from 'react';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import noimg from "/noimg.jpg"
@@ -6,10 +5,7 @@ import AppleToggle from './AppleToggle';
 import ProductCardShimmer from './ProductCardShimmer';
 import EmptyProductsState from './EmptyProductState';
 
-const ProductsTable = () => {
-    const {data,isLoading,isError} = useGetVendorProductsQuery()
-    const products = data?.data?.products || []
-    
+const ProductsTable = ({ products, isLoading, isError }) => {
     // console.log("products",allproducts)    
     return (
         <div className='w-full overflow-x-auto'>
@@ -29,63 +25,67 @@ const ProductsTable = () => {
                     <tbody>
                         <ProductCardShimmer />
                     </tbody>
-                ):products?.length > 0 ? (
+                ) : products?.length > 0 ? (
                     <tbody>
-                     {products?.map((product)=>{
-                        return (
-                            <tr key={product?.id} className="border-t bg-white hover:bg-gray-50 transition">
-                            {/* Product */}
-                            <td className="px-4 py-3">
-                                <div className="flex items-center gap-3">
-                                    <img src={product?.images?.[0]?.url || noimg} onError={(e) => { e.target.src = noimg; }} className="w-10 h-10 rounded-lg" />
-                                    <div>
-                                        <p className="font-semibold text-sm">{product?.productName || "NA"}</p>
-                                        <p className="text-xs text-gray-500">{product?.category || "NA"}</p>
-                                    </div>
-                                </div>
-                            </td>
-                            {/* Units */}
-                            <td className="px-3 py-3 text-sm">
-                                {product?.priceOptions?.map(option => `${option.quantity}${option.unit}`).join(', ') || 'N/A'}
-                            </td>
-                            {/* Pricing */}
-                            <td className="px-3 py-3">
-                                <div className="flex flex-col">
-                                    <span className="font-bold text-[#006e2f] text-sm">
-                                        ₹{product?.priceOptions?.[0]?.sellingPrice || 'N/A'}
-                                    </span>
-                                    <span className="text-xs line-through text-gray-400">
-                                        ₹{product?.priceOptions?.[0]?.mrp || 'N/A'}
-                                    </span>
-                                </div>
-                            </td>
+                        {products?.map((product) => {
+                            return (
+                                <tr key={product?.id} className="border-t bg-white  hover:bg-gray-50 transition">
+                                    {/* Product */}
+                                    <td className="px-4 py-3">
+                                        <div className="flex items-center gap-3">
+                                            <img src={product?.images?.[0]?.url || noimg} onError={(e) => { e.target.src = noimg; }} className="w-10 h-10 rounded-lg" />
+                                            <div>
+                                                <p className="font-semibold text-sm">{product?.productName || "NA"}</p>
+                                                <p className="text-xs text-gray-500">{product?.category || "NA"}</p>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    {/* Units */}
+                                    <td className="px-3 py-3 text-sm">
+                                        {product?.priceOptions?.map(option => `${option.quantity}${option.unit}`).join(', ') || 'N/A'}
+                                    </td>
+                                    {/* Pricing */}
+                                    <td className="px-3 py-3">
+                                        <div className="flex flex-col gap-1">
+                                            {product?.priceOptions?.map((option, idx) => (
+                                                <div key={idx} className="flex items-center gap-2 text-xs">
+                                                    <span className="text-[#006e2f] font-semibold">
+                                                        ₹{option.sellingPrice}
+                                                    </span>
+                                                    <span className="text-gray-500">
+                                                        ({option.quantity}{option.unit})
+                                                    </span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </td>
 
-                            {/* Stock */}
-                            <td className="px-3 py-3">
-                                <span className={`px-2 py-1 text-xs rounded-full ${product?.isAvailable ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                                    {product?.isAvailable ? "In Stock" : "Out of stock"}
-                                </span>
-                            </td>
+                                    {/* Stock */}
+                                    <td className="px-3 py-3">
+                                        <span className={`px-2 py-1 text-xs rounded-full ${product?.isAvailable ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                                            {product?.isAvailable ? "In Stock" : "Out of stock"}
+                                        </span>
+                                    </td>
 
-                            {/* Toggle */}
-                            <td className="px-3 py-3">
-                                <AppleToggle checked={product?.isAvailable}  />
-                            </td>
+                                    {/* Toggle */}
+                                    <td className="px-3 py-3">
+                                        <AppleToggle checked={product?.isAvailable} />
+                                    </td>
 
-                            {/* Actions */}
-                            <td className="px-4 py-3 text-right">
-                                <div className="flex justify-end gap-2">
-                                    <button className="p-1 hover:bg-gray-100 rounded">
-                                        <MdEdit />
-                                    </button>
-                                    <button className="p-1 hover:bg-red-100 text-red-500 rounded">
-                                        <MdDelete />
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
-                        )
-                     })}
+                                    {/* Actions */}
+                                    <td className="px-4 py-3 text-right">
+                                        <div className="flex justify-end gap-2">
+                                            <button className="p-1 hover:bg-gray-100 rounded">
+                                                <MdEdit />
+                                            </button>
+                                            <button className="p-1 hover:bg-red-100 text-red-500 rounded">
+                                                <MdDelete />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )
+                        })}
                     </tbody>
                 ) : isError ? (
                     <tbody>

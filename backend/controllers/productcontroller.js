@@ -13,6 +13,7 @@ const Addproduct = async (req, res) => {
     const userId = req.user;
     const { productName, description, category, priceOptions } = req.body;
     const files = req?.files || [];
+    // console.log("req body",req.body)
     // allowed fields
     const allowedFields = ["productName", "description", "category"];
     for (let field of allowedFields) {

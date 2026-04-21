@@ -53,6 +53,7 @@ const validateContacts = (contacts) => {
 
 const AddProductPriceOptionsValidation = (priceOptions)=>{
   if(!priceOptions) return "Price options are required";
+  // console.log("priceoptions",priceOptions)
     // Must be array
   if (!Array.isArray(priceOptions)) {
     return "Price options must be an array";

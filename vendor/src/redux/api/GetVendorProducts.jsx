@@ -17,7 +17,7 @@ export const GetVendorProducts = createApi({
     }),
     endpoints:(builder)=>({
         GetVendorProducts:builder.query({
-            query:()=> "/api/products/vendor",
+            query:({page = 1,limit = 5})=> `/api/products/vendor?page=${page}&limit=${limit}`,
         })
     })
 })
