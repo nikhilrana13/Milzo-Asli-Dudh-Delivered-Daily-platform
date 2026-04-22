@@ -5,7 +5,7 @@ import AppleToggle from './AppleToggle';
 import ProductCardShimmer from './ProductCardShimmer';
 import EmptyProductsState from './EmptyProductState';
 
-const ProductsTable = ({ products, isLoading, isError }) => {
+const ProductsTable = ({ products, isLoading, isError,onEdit}) => {
     // console.log("products",allproducts)    
     return (
         <div className='w-full overflow-x-auto'>
@@ -59,7 +59,6 @@ const ProductsTable = ({ products, isLoading, isError }) => {
                                             ))}
                                         </div>
                                     </td>
-
                                     {/* Stock */}
                                     <td className="px-3 py-3">
                                         <span className={`px-2 py-1 text-xs rounded-full ${product?.isAvailable ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
@@ -71,11 +70,10 @@ const ProductsTable = ({ products, isLoading, isError }) => {
                                     <td className="px-3 py-3">
                                         <AppleToggle checked={product?.isAvailable} />
                                     </td>
-
                                     {/* Actions */}
                                     <td className="px-4 py-3 text-right">
                                         <div className="flex justify-end gap-2">
-                                            <button className="p-1 hover:bg-gray-100 rounded">
+                                            <button onClick={()=>onEdit(product)} className="p-1 hover:bg-gray-100 rounded">
                                                 <MdEdit />
                                             </button>
                                             <button className="p-1 hover:bg-red-100 text-red-500 rounded">

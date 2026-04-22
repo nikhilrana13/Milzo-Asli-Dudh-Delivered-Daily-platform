@@ -20,3 +20,19 @@ html,body{
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+.custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+.custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #006e2f;
+            border-radius: 10px;
+}
+.dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #006e2f;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #006e2f;
+}

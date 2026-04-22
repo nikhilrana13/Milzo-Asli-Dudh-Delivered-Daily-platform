@@ -148,6 +148,8 @@ const UpdateProductDetails = async (req, res) => {
     const { productName, description, category, priceOptions, existingImages } =
       req.body;
     const files = req?.files || [];
+    // console.log("files", files);
+    // console.log("existingimages", existingImages);
     // check vendor exists or not
     const vendorexists = await Vendor.findById(userId);
     if (!vendorexists) {
@@ -233,7 +235,13 @@ const UpdateProductDetails = async (req, res) => {
     //  parse existing images sent from frontend
     if (existingImages) {
       try {
-        parsedExistingImages = JSON.parse(existingImages);
+        const parsed = JSON.parse(existingImages);
+        //  handle both cases
+        if (parsed.length > 0 && typeof parsed[0] === "object") {
+          parsedExistingImages = parsed.map((img) => img.url);
+        } else {
+          parsedExistingImages = parsed;
+        }
       } catch (err) {
         return Response(res, 400, "Invalid existing images format");
       }
@@ -249,7 +257,7 @@ const UpdateProductDetails = async (req, res) => {
     }
     /* find images removed by user  (images in DB but NOT in existingImages => removed) */
     const removedImages = oldImages.filter(
-      (img) => !parsedExistingImages.includes(img.url),
+      (img) => !parsedExistingImages?.includes(img.url),
     );
     // update images (merge old + new)  keep selected old images  append newly uploaded images
     if (existingImages !== undefined || files.length > 0) {
@@ -367,7 +375,6 @@ const UpdateProductStatus = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
-
 
 module.exports = {
   Addproduct,
