@@ -31,7 +31,6 @@ const App = () => {
             <Route path="bookings" element={<Bookings />} />
             <Route path="settings" element={<Settings />} />
           </Route>
-          
         </Route>
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} />
