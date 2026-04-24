@@ -1,12 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { MdDelete, MdEdit } from 'react-icons/md';
 import noimg from "/noimg.jpg"
 import AppleToggle from './AppleToggle';
 import ProductCardShimmer from './ProductCardShimmer';
 import EmptyProductsState from './EmptyProductState';
+import { toast } from 'react-toastify';
+import { useDeleteProductMutation, useUpdateProductStatusMutation } from '@/redux/api/GetVendorProducts';
 
-const ProductsTable = ({ products, isLoading, isError,onEdit}) => {
+const ProductsTable = ({ products, isLoading, isError, onEdit, }) => {
     // console.log("products",allproducts)    
+    const [toggleId, setToggleId] = useState(null)
+    const [deleteprojectId, setDeleteProjectId] = useState(null)
+    const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation()
+    const [updateProduct, { isLoading: isUpdating }] = useUpdateProductStatusMutation()
+    // handle product isAvailable toggle 
+    const handleToggle = async (productId, currentStatus) => {
+        try {
+            setToggleId(productId)
+            const res = await updateProduct({ id: productId, isAvailable: !currentStatus }).unwrap()
+            toast.success(res?.message)
+        } catch (error) {
+            console.error("failed to toggle", error)
+            toast.error(error?.data?.message || "Internal server error")
+        } finally {
+            setToggleId(null)
+        }
+    }
+    // handle delete 
+    const handleDelete = async (productId) => {
+        try {
+            setDeleteProjectId(productId)
+            const res = await deleteProduct(productId).unwrap()
+            toast.success(res?.messsage)
+        } catch (error) {
+            console.error("failed to delete product", error)
+            toast.error(error?.data?.message || "Internal server error")
+        } finally {
+            setTimeout(() => {
+                setDeleteProjectId(null)
+            }, 3000);
+            // setDeleteProjectId(null)
+        }
+    }
+
     return (
         <div className='w-full overflow-x-auto'>
             <table className="w-full text-left border-collapse">
@@ -29,7 +65,7 @@ const ProductsTable = ({ products, isLoading, isError,onEdit}) => {
                     <tbody>
                         {products?.map((product) => {
                             return (
-                                <tr key={product?.id} className="border-t bg-white  hover:bg-gray-50 transition">
+                                <tr key={product?._id} className="border-t bg-white  hover:bg-gray-50 transition">
                                     {/* Product */}
                                     <td className="px-4 py-3">
                                         <div className="flex items-center gap-3">
@@ -50,7 +86,7 @@ const ProductsTable = ({ products, isLoading, isError,onEdit}) => {
                                             {product?.priceOptions?.map((option, idx) => (
                                                 <div key={idx} className="flex items-center gap-2 text-xs">
                                                     <span className="text-[#006e2f] font-semibold">
-                                                        ₹{option.sellingPrice}
+                                                        ₹{Number(option?.sellingPrice).toLocaleString("en-IN")}
                                                     </span>
                                                     <span className="text-gray-500">
                                                         ({option.quantity}{option.unit})
@@ -68,16 +104,35 @@ const ProductsTable = ({ products, isLoading, isError,onEdit}) => {
 
                                     {/* Toggle */}
                                     <td className="px-3 py-3">
-                                        <AppleToggle checked={product?.isAvailable} />
+                                        <div className="flex items-center gap-2">
+                                            <AppleToggle
+                                                checked={toggleId === product?._id
+                                                    ? !product?.isAvailable
+                                                    : product?.isAvailable}
+                                                disabled={
+                                                    toggleId === product?._id || isUpdating
+                                                }
+                                                onChange={() => handleToggle(product?._id, product?.isAvailable)}
+                                            />
+                                            {toggleId === product?._id && (
+                                                <div className="w-4 h-4 border-2 border-gray-300 border-t-[#006e2f] rounded-full animate-spin"></div>
+                                            )}
+                                        </div>
                                     </td>
                                     {/* Actions */}
                                     <td className="px-4 py-3 text-right">
                                         <div className="flex justify-end gap-2">
-                                            <button onClick={()=>onEdit(product)} className="p-1 hover:bg-gray-100 rounded">
+                                            <button onClick={() => onEdit(product)} className="p-1 hover:bg-gray-100 rounded">
                                                 <MdEdit />
                                             </button>
-                                            <button className="p-1 hover:bg-red-100 text-red-500 rounded">
-                                                <MdDelete />
+                                            <button disabled={deleteprojectId === product?._id || isDeleting} onClick={() => handleDelete(product?._id)} className="p-1 hover:bg-red-100 text-red-500 rounded flex items-center justify-center">
+                                                {deleteprojectId === product?._id ? (
+                                                    <div className="w-4 h-4 border-2 border-red-400 border-t-red-600 rounded-full animate-spin"></div>
+                                                ) : (
+                                                    <MdDelete />
+                                                )
+                                                }
+
                                             </button>
                                         </div>
                                     </td>

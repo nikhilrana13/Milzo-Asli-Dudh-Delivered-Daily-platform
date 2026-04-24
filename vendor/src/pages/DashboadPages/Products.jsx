@@ -1,7 +1,7 @@
 import AddandEditProduct from '@/components/dashboardcomponents/AddandEditProduct';
 import ProductsTable from '@/components/dashboardcomponents/ProductsTable';
 import { useGetVendorProductsQuery } from '@/redux/api/GetVendorProducts';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MdAddCircle } from 'react-icons/md';
 
 const Products = () => {
@@ -19,6 +19,12 @@ const Products = () => {
     setSelectedProduct(product)
     setShowAddProductModel(true)
   }
+// detect empty page
+ useEffect(() => {
+  if (!isLoading && products.length === 0 && page > 1) {
+    setPage(prev => prev - 1)
+  }
+}, [products, isLoading])
 
   const start = pagination?.currentPage ? (pagination.currentPage - 1) * pagination.limit + 1 : 0;
   const end = Math.min(pagination?.currentPage * pagination?.limit, pagination?.totalProducts)
