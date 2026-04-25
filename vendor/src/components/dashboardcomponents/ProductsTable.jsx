@@ -31,15 +31,12 @@ const ProductsTable = ({ products, isLoading, isError, onEdit, }) => {
         try {
             setDeleteProjectId(productId)
             const res = await deleteProduct(productId).unwrap()
-            toast.success(res?.messsage)
+            toast.success(res?.messsage || "Product Deleted")
         } catch (error) {
             console.error("failed to delete product", error)
             toast.error(error?.data?.message || "Internal server error")
         } finally {
-            setTimeout(() => {
-                setDeleteProjectId(null)
-            }, 3000);
-            // setDeleteProjectId(null)
+            setDeleteProjectId(null)
         }
     }
 
