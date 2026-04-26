@@ -5,7 +5,7 @@ import AppleToggle from './AppleToggle';
 import ProductCardShimmer from './ProductCardShimmer';
 import EmptyProductsState from './EmptyProductState';
 import { toast } from 'react-toastify';
-import { useDeleteProductMutation, useUpdateProductStatusMutation } from '@/redux/api/GetVendorProducts';
+import { useDeleteProductMutation, useUpdateProductStatusMutation } from '@/redux/api/GetVendorProductsApi';
 
 const ProductsTable = ({ products, isLoading, isError, onEdit, }) => {
     // console.log("products",allproducts)    

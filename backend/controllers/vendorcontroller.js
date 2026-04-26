@@ -721,12 +721,14 @@ const VendorSubscriptionStats = async (req, res) => {
       }),
     ]);
     return Response(res, 200, "Vendor Subscription stats", {
+    stats:{
       totalSubs: totalSubs || 0,
       activeSubs: activeSubs || 0,
       cancelledSubs: cancelledSubs || 0,
       completedSubs: completedSubs || 0,
       pausedSubs: pausedSubs || 0,
       pendingBookings: pendingBookings || 0,
+    }
     });
   } catch (error) {
     console.log("Failed to get vendor subscription stats", error);

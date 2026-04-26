@@ -1,6 +1,6 @@
 import AddandEditProduct from '@/components/dashboardcomponents/AddandEditProduct';
 import ProductsTable from '@/components/dashboardcomponents/ProductsTable';
-import { useGetVendorProductsQuery } from '@/redux/api/GetVendorProducts';
+import { useGetVendorProductsQuery } from '@/redux/api/GetVendorProductsApi';
 import React, { useEffect, useState } from 'react';
 import { MdAddCircle } from 'react-icons/md';
 
