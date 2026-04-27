@@ -7,7 +7,7 @@ const StripeInstance = require("../utils/stripe");
 const Response = require("../utils/responsehandler");
 const { safeParse } = require("../utils/validations");
 const mongoose = require("mongoose");
-const calculateOffer = require("../utils/helpers");
+const { calculateOffer } = require("../utils/helpers");
 
 // create subscription booking
 const CreateSubscriptionBooking = async (req, res) => {

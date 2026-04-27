@@ -32,11 +32,19 @@ export const GetVendorSubscriptions = createApi({
                 return `/api/subscriptions/vendor?${params.toString()}`
             },
             providesTags: ["Subscriptions"]
-        })
+        }),
         // update subscription status cancel or approve
+        updateBookingStatus:builder.mutation({
+            query: ({ id, status }) => ({
+                url: `/api/subscriptions/${id}/confirm-or-cancel`,
+                method: "PATCH",
+                body: { status },
+            }),
+            invalidatesTags: ["Subscriptions"],
+        })
 
     })
 
 })
 
-export const { useGetVendorSubscriptionsQuery } = GetVendorSubscriptions
+export const { useGetVendorSubscriptionsQuery,useUpdateBookingStatusMutation} = GetVendorSubscriptions

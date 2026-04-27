@@ -1,4 +1,5 @@
 const Campaign = require("../models/campaignmodel");
+const Subscription = require("../models/subscriptionmodel");
 const { uploadToImageKit } = require("./upload");
 
 // helper: upload multiple files
@@ -85,6 +86,4 @@ const calculateOffer = async ({
   };
 };
 
-module.exports = calculateOffer;
-
-module.exports = {uploadFiles,parseExisting,buildMedia}
+module.exports = {uploadFiles,parseExisting,buildMedia,calculateOffer}
