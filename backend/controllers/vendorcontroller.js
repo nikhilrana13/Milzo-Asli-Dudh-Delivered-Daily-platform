@@ -28,7 +28,7 @@ const ApplyKyc = async (req, res) => {
       deliveryTimings,
       contactnumbers,
     } = req.body;
-    console.log("req.body",req.body)
+    console.log("req.body", req.body);
     // Extract uploaded files with safe fallback
     const dairyImages = req.files?.images || [];
     const dairyVideos = req.files?.videos || [];
@@ -721,14 +721,14 @@ const VendorSubscriptionStats = async (req, res) => {
       }),
     ]);
     return Response(res, 200, "Vendor Subscription stats", {
-    stats:{
-      totalSubs: totalSubs || 0,
-      activeSubs: activeSubs || 0,
-      cancelledSubs: cancelledSubs || 0,
-      completedSubs: completedSubs || 0,
-      pausedSubs: pausedSubs || 0,
-      pendingBookings: pendingBookings || 0,
-    }
+      stats: {
+        totalSubs: totalSubs || 0,
+        activeSubs: activeSubs || 0,
+        cancelledSubs: cancelledSubs || 0,
+        completedSubs: completedSubs || 0,
+        pausedSubs: pausedSubs || 0,
+        pendingBookings: pendingBookings || 0,
+      },
     });
   } catch (error) {
     console.log("Failed to get vendor subscription stats", error);
@@ -771,10 +771,12 @@ const VendorBookingStats = async (req, res) => {
         }),
       ]);
     return Response(res, 200, "Vendor Booking stats", {
-      totalBookings: totalBookings || 0,
-      paidBookings: paidBookings || 0,
-      failedBookings: failedBookings || 0,
-      pendingBookings: pendingBookings || 0,
+      stats: {
+        totalBookings: totalBookings || 0,
+        paidBookings: paidBookings || 0,
+        failedBookings: failedBookings || 0,
+        pendingBookings: pendingBookings || 0,
+      },
     });
   } catch (error) {
     console.log("Failed to get vendor booking stats", error);

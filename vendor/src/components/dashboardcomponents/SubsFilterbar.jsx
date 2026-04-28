@@ -5,7 +5,7 @@ const SubsFilterbar = ({ setSelectedPaymentStatus,setSelectedBookingStatus}) => 
      <div className="p-4 bg-white flex flex-wrap gap-5 justify-start">
         <select onChange={(e)=>setSelectedPaymentStatus(e.target.value)} className="bg-[#F2F3F5]  text-black text-sm px-3 py-2 rounded-xl">
           <option value="">Payment Status</option>
-          <option value="Paid">Paid</option>
+          <option value="paid">Paid</option>
           <option value="failed">Failed</option>
           <option value="pending">Pending</option>
         </select>

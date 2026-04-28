@@ -46,7 +46,6 @@ app.use("/api",ReviewRoute)
 
 // connect to db
 configure()
-
 // app.use("/",(req,res)=>{
 //     res.send("hello server is running")
 // })
