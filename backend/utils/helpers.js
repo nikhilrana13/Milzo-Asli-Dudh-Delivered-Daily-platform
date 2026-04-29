@@ -20,21 +20,15 @@ const parseExisting = (existing, oldMedia) => {
   if (!existing) {
     return oldMedia.map((m) => m.url);
   }
+  
   return JSON.parse(existing);
 };
 // helper: build final media
 const buildMedia = (oldMedia, existingUrls, newMedia) => {
-  return [
-    ...oldMedia.filter((m) => existingUrls.includes(m.url)),
-    ...newMedia,
-  ];
+  return [...oldMedia.filter((m) => existingUrls.includes(m.url)), ...newMedia];
 };
 
-const calculateOffer = async ({
-  userId,
-  campaignId,
-  totalAmount,
-}) => {
+const calculateOffer = async ({ userId, campaignId, totalAmount }) => {
   let finalAmount = totalAmount;
   let discountAmount = 0;
   let appliedCampaign = null;
@@ -86,4 +80,4 @@ const calculateOffer = async ({
   };
 };
 
-module.exports = {uploadFiles,parseExisting,buildMedia,calculateOffer}
+module.exports = { uploadFiles, parseExisting, buildMedia, calculateOffer };

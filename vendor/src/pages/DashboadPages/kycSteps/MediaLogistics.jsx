@@ -3,6 +3,24 @@ import { Controller, useFormContext } from 'react-hook-form';
 import { MdAddAPhoto, MdClose, MdVideoCall } from 'react-icons/md';
 import { toast } from 'react-toastify';
 
+
+// Utility function to get safe preview URL
+const getFilePreviewUrl = (file) => {
+  if (!file) return null;
+  // Handle object with url and fileId (from backend)
+  if (typeof file === 'object' && file.url) {
+    return file.url;
+  }
+  // Handle string URL
+  if (typeof file === 'string') {
+    return file;
+  }
+  // Handle File or Blob object (newly uploaded)
+  if (file instanceof File || file instanceof Blob) {
+    return URL.createObjectURL(file);
+  }
+  return null;
+};
 const MediaLogistics = () => {
   const { register, control, getValues, formState: { errors } } = useFormContext()
   const imgRef = useRef();
@@ -114,7 +132,7 @@ const MediaLogistics = () => {
               {value?.map((file, i) => (
                 <div key={i} className="relative h-32">
                   <img
-                    src={URL.createObjectURL(file)}
+                    src={getFilePreviewUrl(file)}
                     className="w-full h-full object-cover rounded-xl"
                   />
 
@@ -166,7 +184,7 @@ const MediaLogistics = () => {
                 return (
                   <div key={i} className="relative w-full">
                     <video
-                      src={URL.createObjectURL(file)}
+                      src={getFilePreviewUrl(file)}
                       className="w-full h-44 object-cover rounded-xl shadow"
                       controls
                     />

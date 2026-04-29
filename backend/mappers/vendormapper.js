@@ -8,6 +8,13 @@ const VendorMapper = (vendor)=>({
     isActive:vendor.isActive,
     kycStatus:vendor.kycStatus,
     isKycApproved:vendor.isKycApproved,
-    rejectedReason:vendor.rejectedReason
+    rejectedReason:vendor.rejectedReason,
+    images:vendor.dairyImages,
+    videos:vendor.dairyVideos,
+    contactnumbers:vendor.contactnumbers,
+    deliveryTimings:vendor.deliveryTimings,
+    description:vendor.description,
+    city:vendor.city,
+    pincode:vendor.pincode,
 })
 module.exports = VendorMapper

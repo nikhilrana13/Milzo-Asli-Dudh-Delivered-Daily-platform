@@ -16,7 +16,7 @@ const vendorSchema = new mongoose.Schema(
       url: { type: String, default: null },
       fileId: { type: String, default: null },
     },
-    displayName: { type: String, default: "", maxlength: 100 },
+    displayName: { type: String, default: "", maxlength: 50 },
     location: {
       type: {
         type: String,
