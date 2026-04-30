@@ -31,10 +31,10 @@ const Sidebar = () => {
 
 
     return (
-        <aside className='w-full bg-white flex-shrink-0 flex flex-col h-screen overflow-x-auto'>
+        <aside className='w-full bg-white flex-shrink-0 flex flex-col h-full '>
             {/* nav links */}
              {!isApproved && (
-                <div className="p-3 text-sm bg-yellow-50 text-yellow-700">
+                <div className="p-3  text-sm bg-yellow-50 text-yellow-700">
                     🔒 Complete your KYC to unlock dashboard, products & subscriptions
                 </div>
             )}
