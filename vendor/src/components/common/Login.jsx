@@ -30,13 +30,19 @@ const Login = ({setStep}) => {
         toast.success(response?.message)
         const user = response?.data?.user 
         const token = response?.data?.token 
+        const lastpath = localStorage.getItem("lastPath")
         localStorage.setItem("token",token)
         dispatch(SetUser(user))
         if(user?.kycStatus === "approved"){
-          navigate("/vendor/dashboard")
+          if(lastpath && lastpath.startsWith("/vendor")){
+            navigate(lastpath)
+          }else{
+            navigate("/vendor/dashboard")
+          }
         }else{
           navigate("/vendor/kyc")
         }
+        localStorage.removeItem("lastPath")
         setLoginDialogOpen(false)
       }
     } catch (error) {

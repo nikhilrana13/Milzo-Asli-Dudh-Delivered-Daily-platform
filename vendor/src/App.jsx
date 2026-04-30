@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import DashboardLayout from './pages/DashboardLayout';
@@ -14,7 +14,23 @@ import KycLayout from './pages/DashboadPages/KycLayout';
 import KycProtectedRoute from './protectedRoutes/kycProtectedRoute';
 import VendorGuard from './protectedRoutes/VendorGuard';
 import { Helmet } from 'react-helmet-async';
+import { useDialog } from './context/useDialog';
+import AuthDialog from './components/common/AuthDialog';
 const App = () => {
+  const { isLoginDialogOpen, setLoginDialogOpen } = useDialog()
+
+  
+
+  useEffect(() => {
+    const handleUnauthorized = () => {
+      setLoginDialogOpen(true);
+    };
+    window.addEventListener("unauthorized", handleUnauthorized);
+    return () => {
+      window.removeEventListener("unauthorized", handleUnauthorized);
+    };
+  }, [setLoginDialogOpen]);
+
   return (
     <>
       <Helmet>
@@ -50,8 +66,10 @@ const App = () => {
             </Route>
           </Route>
         </Routes>
-        <ToastContainer position="top-right" autoClose={3000} />
+        <ToastContainer position="top-right" autoClose={3000} style={{zIndex:200000}} />
       </div>
+      {/* global auth dialog */}
+      {isLoginDialogOpen && <AuthDialog />}
     </>
 
   );

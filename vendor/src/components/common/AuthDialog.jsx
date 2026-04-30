@@ -4,15 +4,15 @@ import { motion } from "framer-motion"
 import Login from './Login';
 import { IoMdClose } from 'react-icons/io';
 import RegisterVendor from './RegisterVendor';
+import { createPortal } from 'react-dom';
 
 const AuthDialog = () => {
-  const { isLoginDialogOpen, setLoginDialogOpen } = useDialog()
+  const {setLoginDialogOpen } = useDialog()
   const [step, setStep] = useState(1)
 
 
-  return (
-    <>
-      <div className='w-screen fixed inset-0 z-[100] flex justify-center items-start sm:items-center py-10 px-4  h-screen '>
+  return createPortal(
+      <div className='w-screen fixed inset-0 z-[100000] flex justify-center items-start sm:items-center py-10 px-4  h-screen '>
         {/* backdrop */}
         <div onClick={() => setLoginDialogOpen(false)} className='absolute inset-0 bg-gray-900/50 backdrop-blur-sm' />
 
@@ -34,8 +34,9 @@ const AuthDialog = () => {
         </motion.div>
 
 
-      </div>
-    </>
+      </div>,
+      document.body
+      
   );
 }
 

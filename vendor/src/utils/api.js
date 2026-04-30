@@ -1,5 +1,8 @@
+
+import { logout } from "@/redux/AuthSlice";
+import { Store } from "@/redux/Store";
 import axios from "axios";
-import { toast } from "react-toastify";
+
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -18,9 +21,15 @@ api.interceptors.response.use(
       console.error("Network error");
       return Promise.reject(error);
     }
-    if (error.response.status === 401) {
+    const status = error.response.status;
+    const url = error.config.url;
+    const isAuthApi = url.includes("/vendor-Login");
+    // skip login api
+    if (status === 401 && !isAuthApi) {
       localStorage.removeItem("token");
-      window.location.replace("/login");
+      localStorage.setItem("lastPath", window.location.pathname); // save current page pathname
+      Store.dispatch(logout())
+      window.dispatchEvent(new Event("unauthorized"))
     }
     return Promise.reject(error);
   }

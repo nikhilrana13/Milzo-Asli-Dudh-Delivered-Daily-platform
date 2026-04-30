@@ -1,4 +1,5 @@
 import Sidebar from '@/components/dashboardcomponents/Sidebar';
+import { useDialog } from '@/context/useDialog';
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { BiMenu } from 'react-icons/bi';
@@ -24,7 +25,7 @@ const DashboardLayout = () => {
 </Helmet>
     <div className="w-full">
       {/* Navbar */}
-      <header className="fixed top-0 left-0 right-0 justify-between bg-white border-b z-[9999] min-h-[75px] flex items-center px-4">
+      <header className="fixed top-0 left-0 right-0 justify-between bg-white border-b z-[2000] min-h-[75px] flex items-center px-4">
         <div className="sm:px-6 flex items-center gap-3">
           <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-r from-[#006e2f] to-[#4ae176] flex items-center justify-center text-white shadow-md">
             <MdEnergySavingsLeaf className="text-lg sm:text-xl" />
@@ -48,7 +49,7 @@ const DashboardLayout = () => {
         </div>
         {/* Mobile Sidebar */}
         <div
-          className={`fixed top-0 left-0 h-screen  w-[280px] bg-white z-[10000] transform transition-transform duration-300 
+          className={`fixed top-0 left-0 h-screen  w-[280px] bg-white z-[2000] transform transition-transform duration-300 
             ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:hidden`}
         >
           <header className="fixed top-0 left-0 right-0 justify-between bg-white border-b  min-h-[75px] flex items-center px-3">
@@ -74,7 +75,7 @@ const DashboardLayout = () => {
         {isOpen && (
           <div
             onClick={() => setIsOpen(false)}
-            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[9999] lg:hidden"
+            className="fixed inset-0 bg-black/30 backdrop-blur-sm z-[1000] lg:hidden"
           />
         )}
         {/* Content */}

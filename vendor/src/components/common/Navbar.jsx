@@ -3,7 +3,7 @@ import React from 'react'
 import AuthDialog from './AuthDialog'
 
 const Navbar = () => {
-    const {isLoginDialogOpen,setLoginDialogOpen} = useDialog()
+    const {setLoginDialogOpen} = useDialog()
   return (
     <>
     <header className='px-6 bg-white/80 border w-full sticky top-0 z-[100] backdrop-blur-xl  md:px-16 lg:px-30 py-2'>
@@ -20,8 +20,6 @@ const Navbar = () => {
                     </div>
                 </nav>
     </header>
-    {/* dialog model */}
-    {isLoginDialogOpen && <AuthDialog />}
     </>
 
   )

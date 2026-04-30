@@ -1,21 +1,13 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { createApi } from "@reduxjs/toolkit/query/react";
+import baseQueryWithAuth from "./BaseQuery";
 
 
 
 
 export const GetVendorBookings = createApi({
     reducerPath: "GetVendorBookings",
-    baseQuery: fetchBaseQuery({
-        baseUrl: import.meta.env.VITE_BACKEND_URL,
-        prepareHeaders: (headers) => {
-            const token = localStorage.getItem("token");
-            if (token) {
-                headers.set("Authorization", `Bearer ${token}`)
-            }
-            return headers;
-        }
-    }),
+    baseQuery: baseQueryWithAuth,
     endpoints: (builder) => ({
         // get vendor Bookings
         GetVendorBookings: builder.query({

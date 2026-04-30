@@ -13,11 +13,14 @@ export const AuthSlice = createSlice({
     reducers:{
            SetUser:(state,action)=>{
             state.user = action.payload
+           },
+           logout:(state)=>{
+            state.user = null
            }
     }
 })
 
-export const {SetUser} = AuthSlice.actions 
+export const {SetUser,logout} = AuthSlice.actions 
 const persistconfig = {
     key:'Auth',
     storage:sessionStorage

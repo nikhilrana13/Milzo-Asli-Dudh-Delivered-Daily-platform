@@ -31,14 +31,14 @@ const Sidebar = () => {
 
 
     return (
-        <aside className='w-full bg-white flex-shrink-0 flex flex-col h-full '>
+        <aside className='w-full bg-white flex-shrink-0 flex flex-col h-full overflow-x-auto'>
             {/* nav links */}
              {!isApproved && (
                 <div className="p-3  text-sm bg-yellow-50 text-yellow-700">
                     🔒 Complete your KYC to unlock dashboard, products & subscriptions
                 </div>
             )}
-            <nav className='flex px-3 mt-3 py-2 gap-5 flex-col'>
+            <nav className='flex px-3 mt-3 py-2 gap-5 flex-col '>
                 {links.map(({ to, label, icon: Icon }) => (
                     <NavLink key={to} to={to} className={({ isActive }) => getNavClass(isActive,to === "kyc" && !isApproved)}>
                         <div className="flex items-center gap-4">

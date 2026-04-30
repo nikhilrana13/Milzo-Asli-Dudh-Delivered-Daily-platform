@@ -83,14 +83,14 @@ const LoginVendor = async(req,res)=>{
         if(vendor){
               const isMatch = await bcrypt.compare(password,vendor.password)
               if(!isMatch){
-                return Response(res,401,"Invalid credentials")
+                return Response(res,403,"Invalid credentials")
               }
               // generate token 
               const token = jwt.sign({id:vendor._id,role:vendor.role},process.env.JWT_SECRET_KEY,{expiresIn:"1day"})
               res.cookie("token",token,{httpOnly:true,secure:true,sameSite:"none"})
               return Response(res,200,"Login successfully",{user:VendorMapper(vendor),token})
         }else{
-            return Response(res,400,"Vendor not found ! Please register first")
+            return Response(res,403,"Vendor not found ! Please register first")
         }
     } catch (error) {
         console.error("failed to login",error)
