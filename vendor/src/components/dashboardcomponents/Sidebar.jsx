@@ -31,7 +31,7 @@ const Sidebar = () => {
 
 
     return (
-        <aside className='w-full bg-white flex-shrink-0 flex flex-col  h-full '>
+        <aside className='w-full bg-white flex-shrink-0 flex flex-col h-full overflow-x-auto'>
             {/* nav links */}
              {!isApproved && (
                 <div className="p-3 text-sm bg-yellow-50 text-yellow-700">
