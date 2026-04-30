@@ -121,7 +121,7 @@ const adminLogin = async (req, res) => {
 // logout
 const Logout = async(req,res)=>{
     try {
-        res.clearCookie("token",{httpOnly:true,secure:false,sameSite:"none"})
+        res.clearCookie("token",{httpOnly:true,secure:true,sameSite:"none"})
          return Response(res,200,"Logout successfully")
     } catch (error) {
          console.error("failed to logout",error)
