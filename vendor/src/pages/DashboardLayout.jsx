@@ -1,5 +1,6 @@
 import Sidebar from '@/components/dashboardcomponents/Sidebar';
 import React, { useEffect, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { BiMenu } from 'react-icons/bi';
 import { MdEnergySavingsLeaf } from 'react-icons/md';
 import { Outlet } from 'react-router-dom';
@@ -12,6 +13,15 @@ const DashboardLayout = () => {
   }, [isOpen])
 
   return (
+    <>
+  <Helmet>
+  <title>Milzo Vendor Dashboard</title>
+  <meta
+    name="description"
+    content="Manage your dairy products, orders, and subscriptions on Milzo."
+  />
+  <meta name="robots" content="noindex, nofollow" />
+</Helmet>
     <div className="w-full">
       {/* Navbar */}
       <header className="fixed top-0 left-0 right-0 justify-between bg-white border-b z-[9999] min-h-[75px] flex items-center px-4">
@@ -73,6 +83,7 @@ const DashboardLayout = () => {
         </div>
       </div>
     </div>
+    </>
   );
 }
 

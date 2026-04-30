@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 // Utility function to get safe preview URL
 const getFilePreviewUrl = (file) => {
   if (!file) return null;
-  
   // Handle object with url and fileId (from backend)
   if (typeof file === 'object' && file.url) {
     return file.url;

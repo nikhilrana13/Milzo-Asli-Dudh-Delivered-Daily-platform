@@ -12,29 +12,45 @@ import Kyc from './pages/DashboadPages/KycForm';
 import Settings from './pages/DashboadPages/Settings';
 import KycLayout from './pages/DashboadPages/KycLayout';
 import KycProtectedRoute from './protectedRoutes/kycProtectedRoute';
+import { Helmet } from 'react-helmet-async';
 const App = () => {
   return (
-    <div className='w-full'>
-      {/* routes */}
-      <Routes>
-        <Route path='/' element={<HomePage />} />
-        {/* vendor Dashboard */}
-        <Route path='/vendor' element={<DashboardLayout />}>
-          <Route index element={<Navigate to="dashboard" replace />} />
-          {/* always accessible */}
-          <Route path="kyc" element={<KycLayout />} />
-          {/* protected routes */}
-          <Route element={<KycProtectedRoute />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="products" element={<Products />} />
-            <Route path="subscriptions" element={<Subscriptions />} />
-            <Route path="bookings" element={<Bookings />} />
-            <Route path="settings" element={<Settings />} />
+    <>
+      <Helmet>
+        <title>Milzo Vendor Dashboard | Manage Dairy Products & Orders</title>
+        <meta
+          name="description"
+          content="Manage your dairy business efficiently with Milzo Vendor Dashboard. Add products, track orders, manage subscriptions, and grow your online dairy store seamlessly."
+        />
+        <meta
+          name="keywords"
+          content="Milzo vendor dashboard, dairy management system, manage dairy products online, milk delivery management, vendor panel dairy app"
+        />
+
+      </Helmet>
+      <div className='w-full'>
+        {/* routes */}
+        <Routes>
+          <Route path='/' element={<HomePage />} />
+          {/* vendor Dashboard */}
+          <Route path='/vendor' element={<DashboardLayout />}>
+            <Route index element={<Navigate to="dashboard" replace />} />
+            {/* always accessible */}
+            <Route path="kyc" element={<KycLayout />} />
+            {/* protected routes */}
+            <Route element={<KycProtectedRoute />}>
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="products" element={<Products />} />
+              <Route path="subscriptions" element={<Subscriptions />} />
+              <Route path="bookings" element={<Bookings />} />
+              <Route path="settings" element={<Settings />} />
+            </Route>
           </Route>
-        </Route>
-      </Routes>
-      <ToastContainer position="top-right" autoClose={3000} />
-    </div>
+        </Routes>
+        <ToastContainer position="top-right" autoClose={3000} />
+      </div>
+    </>
+
   );
 }
 
