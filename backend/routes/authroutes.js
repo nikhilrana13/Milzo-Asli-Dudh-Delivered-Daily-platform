@@ -1,5 +1,5 @@
 const express = require("express")
-const IsGoogleAuth = require("../middlewares/isGoogleAuth")
+const IsGoogleAuth = require("../middlewares/isgoogleauth")
 const {body} = require("express-validator")
 const {LoginWithGoogle, RegisterVendor, LoginVendor, adminLogin, Logout} = require("../controllers/authcontroller")
 const router = express.Router() 
