@@ -12,6 +12,7 @@ import Kyc from './pages/DashboadPages/KycForm';
 import Settings from './pages/DashboadPages/Settings';
 import KycLayout from './pages/DashboadPages/KycLayout';
 import KycProtectedRoute from './protectedRoutes/kycProtectedRoute';
+import VendorGuard from './protectedRoutes/VendorGuard';
 import { Helmet } from 'react-helmet-async';
 const App = () => {
   return (
@@ -33,17 +34,19 @@ const App = () => {
         <Routes>
           <Route path='/' element={<HomePage />} />
           {/* vendor Dashboard */}
-          <Route path='/vendor' element={<DashboardLayout />}>
-            <Route index element={<Navigate to="dashboard" replace />} />
-            {/* always accessible */}
-            <Route path="kyc" element={<KycLayout />} />
-            {/* protected routes */}
-            <Route element={<KycProtectedRoute />}>
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="products" element={<Products />} />
-              <Route path="subscriptions" element={<Subscriptions />} />
-              <Route path="bookings" element={<Bookings />} />
-              <Route path="settings" element={<Settings />} />
+          <Route element={<VendorGuard />}>
+            <Route path='/vendor' element={<DashboardLayout />}>
+              <Route index element={<Navigate to="dashboard" replace />} />
+              {/* always accessible */}
+              <Route path="kyc" element={<KycLayout />} />
+              {/* protected routes */}
+              <Route element={<KycProtectedRoute />}>
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="products" element={<Products />} />
+                <Route path="subscriptions" element={<Subscriptions />} />
+                <Route path="bookings" element={<Bookings />} />
+                <Route path="settings" element={<Settings />} />
+              </Route>
             </Route>
           </Route>
         </Routes>
