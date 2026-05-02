@@ -15,70 +15,85 @@ import { SetUser } from '@/redux/AuthSlice';
 const AuthDialog = ({ onClose }) => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-
-     const handleLoginWithGoogle = async()=>{
+    const handleLoginWithGoogle = async () => {
         try {
-             await signInWithPopup(auth,GoogleProvider)
-             const response = await api.post("/api/auth/test-google",{})
-             if(response){
+            await signInWithPopup(auth, GoogleProvider)
+            const response = await api.post("/api/auth/test-google", {})
+            if (response) {
                 toast.success(response?.message)
                 // console.log("response",response?.data)
-                const user = response?.data?.user 
-                const token = response?.data?.token 
-                localStorage.setItem("token",token) 
+                const user = response?.data?.user
+                const token = response?.data?.token
+                localStorage.setItem("token", token)
                 dispatch(SetUser(user))
                 navigate("/vendors")
                 onClose()
-             }
+            }
         } catch (error) {
-            console.error("failed to login with google",error)
+            console.error("failed to login with google", error)
             toast.error(error?.response?.data.message || "Internal server error")
         }
-     }
+    }
     return (
-        <div className='fixed inset-0 z-[100000] flex justify-center items-start sm:items-center py-10 px-4'>
-            {/* backdrop */}
-            <div onClick={onClose} className='absolute inset-0 bg-gray-900/50 backdrop-blur-sm' />
-            {/* content */}
+
+        <div className="fixed inset-0 z-[100000] flex justify-center items-end sm:items-center">
+            {/* Backdrop */}
+            <div
+                onClick={onClose}
+                className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            />
+            {/* Content */}
             <motion.div
-                initial={{ opacity: 0, scale: 0.92 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.35, ease: "easeOut" }}
-                className="bg-white relative rounded-2xl shadow-[0px_12px_32px_rgba(25,28,30,0.04)] border border-[#bccbb9]/20  flex flex-col items-center w-full overflow-hidden  max-w-md sm:mx-auto animate-in fade-in zoom-in duration-300"
+                drag={window.innerWidth < 640 ? "y" : "false"}
+                dragConstraints={{ top: 0, bottom: 120 }}
+                onDragEnd={(e, info) => {
+                    if (info.offset.y > 120) onClose();
+                }}
+
+                initial={{ opacity: 0, y: 80, scale: 0.96 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: 40 }}
+                transition={{ duration: 0.3 }}
+                className="
+                relative w-full max-w-md  bg-white rounded-t-3xl sm:rounded-2xl shadow-[0_-10px_40px_rgba(0,0,0,0.15)] border border-gray-100 px-6 sm:px-10 pt-6 sm:pt-10 pb-8"
             >
+                {/* Drag Handle */}
+                <div className="sm:hidden flex justify-center mb-3">
+                    <div className="w-10 h-1.5 bg-gray-300 rounded-full"></div>
+                </div>
                 {/* Close Button */}
                 <button
                     onClick={onClose}
-                    className="absolute top-6 right-8 p-2 rounded-full hover:bg-gray-100 transition-colors text-gray-500"
+                    className="absolute top-4 right-4 sm:top-6 sm:right-6 p-2 rounded-full hover:bg-gray-100 transition"
                 >
-                    <MdClose className="text-[20px]" />
+                    <MdClose className="text-[20px] text-gray-600" />
                 </button>
                 {/* Header */}
-                <div className="px-10 pt-12 pb-12 text-center">
-                    <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-green-100 text-green-600 mb-6">
+                <div className="text-center mb-6 sm:mb-8">
+                    <div className="inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-green-100 text-green-600 mb-4">
                         🌿
                     </div>
-                    <h1 className="text-3xl font-[700] tracking-tight text-gray-900 mb-2">
+                    <h1 className="text-xl sm:text-3xl font-bold text-gray-900">
                         Welcome Back
                     </h1>
-                    <p className="text-gray-500 font-medium">
-                        Continue your journey with Milzo Dairy
+                    <p className="text-sm sm:text-base text-gray-500 mt-1">
+                        Continue your journey with Milzo
                     </p>
                 </div>
-                <div className="px-10 pb-12 space-y-8">
-                    {/* Google Login */}
-                    <div className="space-y-4 ">
-                        <button onClick={handleLoginWithGoogle}  className="w-full flex items-center justify-center gap-3 px-6 py-4 rounded-full border border-gray-200 bg-white hover:bg-gray-100 transition-all duration-200 group">
-                            <FcGoogle className="text-xl" />
-                            <span className="font-semibold text-gray-800 group-hover:scale-105 transition-transform">
-                                Login with Google
-                            </span>
-                        </button>
-                    </div>
-                </div>
+                {/* Google Button */}
+                <button
+                    onClick={handleLoginWithGoogle}
+                    className="
+                     w-full flex items-center justify-center gap-3 px-5 py-3 sm:py-4 rounded-full border border-gray-200 
+                    bg-white hover:bg-gray-100 active:scale-95 transition-all duration-200"
+                >
+                    <FcGoogle className="text-lg sm:text-xl" />
+                    <span className="text-sm sm:text-base font-semibold text-gray-800">
+                        Continue with Google
+                    </span>
+                </button>
                 {/* Bottom Accent */}
-                <div className="h-2 w-full bg-gradient-to-r from-[#006e2f] to-[#22c55e] opacity-80"></div>
-
+                <div className="mt-6 sm:mt-8 h-1.5 w-full bg-gradient-to-r from-[#006e2f] to-[#22c55e] rounded-full opacity-80"></div>
             </motion.div>
         </div>
     );
