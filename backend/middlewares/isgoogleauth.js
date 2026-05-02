@@ -1,13 +1,14 @@
 const admin = require("../config/firebase");
 const Response = require("../utils/responsehandler");
 
-const IsGoogleAuth = async (req, res) => {
+const IsGoogleAuth = async (req, res,next) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith("Bearer")) {
+  if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return Response(res, 401, "Unauthorized or invalid token");
   }
   try {
     const token = authHeader.split(" ")[1];
+    // console.log("token",token)
     const decoded = await admin.auth().verifyIdToken(token);
     req.user = decoded;
     next();
