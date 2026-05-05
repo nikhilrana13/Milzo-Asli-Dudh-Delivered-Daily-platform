@@ -18,7 +18,7 @@ const Navbar = () => {
   }
   return (
     <>
-      <header className='px-6 bg-white/80 border w-full sticky top-0 z-[100] backdrop-blur-xl  md:px-16 lg:px-30 py-2'>
+      <header className='px-6 bg-white/80 border w-full sticky top-0 z-[100] backdrop-blur-xl lg:px-30 py-2'>
         <nav className='py-3 flex items-center  justify-between'>
           {/* logo */}
           <div>
