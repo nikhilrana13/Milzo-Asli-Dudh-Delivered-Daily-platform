@@ -41,7 +41,7 @@ const Navbar = () => {
               className="flex items-center gap-2 px-4 py-2 bg-[#EDEEF0] text-[#191c1e] rounded-full text-sm font-semibold hover:bg-[#e7e8ea] transition-all"
             >
               <MdLocationOn className="text-[#10b981] text-lg" />
-             <span>Delhi</span>
+              <span>Delhi</span>
             </button>
             {! user ? (
               <button onClick={()=>setIsAuthDialogOpen(true)} className="hidden md:block bg-gradient-to-br from-[#006e2f] from-0% to-[#22c55e] to-100% text-white px-6 py-2.5 rounded-full  font-medium text-sm tracking-tight shadow-md hover:scale-105 transition-transform duration-200 ease-out active:scale-95">Login</button>
