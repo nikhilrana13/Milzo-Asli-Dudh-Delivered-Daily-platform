@@ -51,7 +51,7 @@ const OfferBanner = ({
             Claim Offer
           </motion.button>
         </div>
-        {/* BIG % BACKGROUND ICON */}
+        {/* big % background icon */}
         <div className="absolute right-0 top-0 h-full w-1/3 flex items-center justify-center opacity-10">
           <span className="text-[100px] sm:text-[140px] font-black text-white">
             {discountValue}%
