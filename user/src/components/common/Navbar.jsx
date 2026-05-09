@@ -1,14 +1,17 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { MdLocationOn } from 'react-icons/md';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useDialog } from '@/context/DialogContext';
 import { useSelector } from 'react-redux';
 import ProfileDropdown from './ProfileDropdown';
+import { useUserLocation } from '@/context/LocationContext';
 
 const Navbar = () => {
   const { pathname } = useLocation()
-  const { setIsAuthDialogOpen } = useDialog()
+  const {setActiveDialog} = useDialog()
   const user = useSelector((state) => state.Auth.user)
+  const { selectedLocation } = useUserLocation()
+  // console.log("selectedLocation", selectedLocation)
 
   const navlinkClass = (path) => {
     return `font-normal relative pb-1 ${pathname === path
@@ -16,6 +19,7 @@ const Navbar = () => {
       : "text-gray-500"
       }`
   }
+
   return (
     <>
       <header className='px-6 bg-white/80 border w-full sticky top-0 z-[100] backdrop-blur-xl lg:px-30 py-2'>
@@ -37,15 +41,22 @@ const Navbar = () => {
           </ul>
           <div className='flex items-center gap-5'>
             {/*location select model*/}
-            <button
-              className="flex items-center gap-2 px-4 py-2 bg-[#EDEEF0] text-[#191c1e] rounded-full text-sm font-semibold hover:bg-[#e7e8ea] transition-all"
-            >
-              <MdLocationOn className="text-[#10b981] text-lg" />
-              <span>Delhi</span>
-            </button>
-            {! user ? (
-              <button onClick={()=>setIsAuthDialogOpen(true)} className="hidden md:block bg-gradient-to-br from-[#006e2f] from-0% to-[#22c55e] to-100% text-white px-6 py-2.5 rounded-full  font-medium text-sm tracking-tight shadow-md hover:scale-105 transition-transform duration-200 ease-out active:scale-95">Login</button>
-            
+            <div className='relative'>
+              <button
+                type='button'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setActiveDialog("location")
+                }}
+                className="flex items-center gap-2 px-4 py-2 bg-[#EDEEF0] text-[#191c1e] rounded-full text-sm font-semibold hover:bg-[#e7e8ea] transition-all"
+              >
+                <MdLocationOn className="text-[#10b981] text-lg" />
+                <span>{selectedLocation?.city || "Select your location"}</span>
+              </button>
+            </div>
+            {!user ? (
+              <button type='button' onClick={() => setActiveDialog("auth")} className="hidden md:block bg-gradient-to-br from-[#006e2f] from-0% to-[#22c55e] to-100% text-white px-6 py-2.5 rounded-full  font-medium text-sm tracking-tight shadow-md hover:scale-105 transition-transform duration-200 ease-out active:scale-95">Login</button>
+
             ) : (
               // for desktop
               <ProfileDropdown />

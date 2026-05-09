@@ -7,14 +7,17 @@ import { DialogProvider } from './context/DialogContext'
 import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/es/integration/react'
 import { Persistor, Store, } from "./redux/Store"
+import { LocationProvider } from './context/LocationContext'
 
 createRoot(document.getElementById('root')).render(
   <Provider store={Store}>
     <PersistGate loading={null} persistor={Persistor}>
       <BrowserRouter>
-        <DialogProvider>
+      <LocationProvider>
+         <DialogProvider>
           <App />
         </DialogProvider>
+      </LocationProvider>
       </BrowserRouter>
     </PersistGate>
   </Provider>

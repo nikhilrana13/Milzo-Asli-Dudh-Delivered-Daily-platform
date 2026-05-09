@@ -11,11 +11,13 @@ import Subscriptions from './pages/Subscriptions';
 import Bookings from './pages/Bookings';
 import Profile from './pages/Profile';
 import VendorDetails from './pages/VendorDetails';
+import LocationSelectDialog from './components/common/LocationSelectDialog';
 
 const App = () => {
-  const { isAuthDialogOpen, setIsAuthDialogOpen } = useDialog()
+  const {activeDialog,setActiveDialog } = useDialog()
 
-  // open login dialog if user is unauthorized
+
+ 
   useEffect(() => {
     const handleUnauthorized = () => {
       setIsAuthDialogOpen(true)
@@ -24,19 +26,26 @@ const App = () => {
     return () => {
       window.removeEventListener("unauthorized", handleUnauthorized)
     }
-  }, [setIsAuthDialogOpen])
-  // open login dialog on every session when user is not login 
-  useEffect(() => {
+  }, [setActiveDialog])
+   // open login dialog if user is unauthorized
+   useEffect(() => {
     const token = localStorage.getItem("token");
     const hasShownInSession = sessionStorage.getItem("loginShown");
-    if (!token && !hasShownInSession && !isAuthDialogOpen) {
-      const timer = setTimeout(() => {
-        setIsAuthDialogOpen(true);
+    // stop if already logged in
+    if (token) return;
+    // stop if already shown in current session
+    if (hasShownInSession) return;
+    // stop if another dialog already open
+    if (activeDialog) return;
+    const timer = setTimeout(() => {
+      // recheck before opening
+      if (!activeDialog) {
+        setActiveDialog("auth");
         sessionStorage.setItem("loginShown", "true");
-      }, 10000);
-        return () => clearTimeout(timer)
-    }
-  }, [setIsAuthDialogOpen]);
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [activeDialog,setActiveDialog]);
 
   return (
     <>
@@ -60,8 +69,12 @@ const App = () => {
         <ToastContainer position="top-right" autoClose={3000} style={{ zIndex: 200000 }} />
       </div>
       {/* auth dialog for globel access */}
-      {isAuthDialogOpen && (
-        <AuthDialog onClose={() => setIsAuthDialogOpen(false)} />
+      {activeDialog === "auth" && (
+        <AuthDialog onClose={() => {setActiveDialog(null) }} />
+      )}
+      {/* select location dialog for global access */}
+      {activeDialog === "location" && (
+        <LocationSelectDialog onClose={() => {setActiveDialog(null) }} />
       )}
     </>
 

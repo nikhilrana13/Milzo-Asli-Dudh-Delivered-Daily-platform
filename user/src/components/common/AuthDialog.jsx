@@ -10,11 +10,13 @@ import { auth, GoogleProvider } from '@/config/Firebase';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { SetUser } from '@/redux/AuthSlice';
+import useLockBodyScroll from '@/hooks/useLockBodyScroll';
 
 
 const AuthDialog = ({ onClose }) => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    // useLockBodyScroll(true)
     const handleLoginWithGoogle = async () => {
         try {
             await signInWithPopup(auth, GoogleProvider)
