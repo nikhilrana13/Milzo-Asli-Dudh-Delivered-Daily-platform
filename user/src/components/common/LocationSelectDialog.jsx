@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { IoSearch } from 'react-icons/io5';
 import { MdMyLocation } from 'react-icons/md';
 import { useSelector } from 'react-redux';
 import SavedAddressBox from '../location/SavedAddressBox';
 import useLockBodyScroll from '@/hooks/useLockBodyScroll';
-import { useGetUserSavedAddressesQuery} from '@/redux/api/UsersavedAddressesApi';
+import { useGetUserSavedAddressesQuery } from '@/redux/api/UsersavedAddressesApi';
+import SavedAddressShimmer from '../location/SavedAddressShimmer';
+import EmptySavedAddress from '../location/EmptySavedAddress';
+import { useUserLocation } from '@/context/LocationContext';
+import { useDialog } from '@/context/DialogContext';
 
 
 
@@ -13,9 +17,23 @@ const LocationSelectDialog = ({ onClose }) => {
     const user = useSelector((state) => state.Auth.user)
     useLockBodyScroll(true)
     const addressQuery = useGetUserSavedAddressesQuery()
-    const savedaddresses = addressQuery?.data?.data?.addresses
-    console.log("data",savedaddresses)
+    const savedaddresses = addressQuery?.data?.data?.addresses || []
+    const [selectedAddressId,setSelectedAddressId] = useState(
+        localStorage.getItem("selectedAddressId") || null
+    )
+    const {fetchUserCurrentLocation} = useUserLocation()
+    const {setActiveDialog} = useDialog()
 
+
+    const handleSelectAddress = (address) => {
+        localStorage.setItem("selectedAddressId", address?._id)
+        setSelectedAddressId(address?._id)
+    }
+    const handleFetchCurrentLocation = ()=>{
+        fetchUserCurrentLocation()
+          setActiveDialog(null)
+    }
+    
     return (
         <>
             {/* backdrop */}
@@ -24,7 +42,7 @@ const LocationSelectDialog = ({ onClose }) => {
                 className="fixed inset-0 z-[99998] bg-black/20 backdrop-blur-[2px]"
             />
             {/* dialog */}
-            <div  onClick={(e) => e.stopPropagation()} className="fixed top-[72px] right-6 lg:right-30 z-[99999] w-full max-w-md rounded-3xl border bg-white shadow-2xl overflow-y-auto h-[500px] custom-scrollbar">
+            <div onClick={(e) => e.stopPropagation()} className="fixed top-[72px] right-6 lg:right-30 z-[99999] w-full max-w-md rounded-3xl border bg-white shadow-2xl overflow-y-auto h-[500px] custom-scrollbar">
                 {/* header */}
                 <div className="p-6 border-b">
                     <h2 className="text-xl font-semibold text-[#191c1e]">
@@ -46,11 +64,11 @@ const LocationSelectDialog = ({ onClose }) => {
                         />
                     </div>
                     {/* current location */}
-                    <button className="w-full flex items-center gap-3 rounded-2xl border p-4 hover:bg-[#f8fafc] transition-all">
+                    <button onClick={handleFetchCurrentLocation} className="w-full flex items-center gap-3 rounded-2xl border p-4 hover:bg-[#f8fafc] transition-all">
                         <div className="h-11 w-11 rounded-full bg-[#dcfce7] flex items-center justify-center">
                             <MdMyLocation className="text-[#16a34a] text-xl" />
                         </div>
-                        <div className="text-left">
+                        <div  className="text-left">
                             <p className="font-medium text-[#191c1e]">
                                 Use current location
                             </p>
@@ -72,9 +90,26 @@ const LocationSelectDialog = ({ onClose }) => {
                                 </button>
                             </div>
                             {/* address card */}
-                            <SavedAddressBox />
-                             <SavedAddressBox />
-                            <SavedAddressBox />
+                            {addressQuery.isLoading ? (
+                                ([1, 2, 3].map((_, i) => {
+                                    return (
+                                        <SavedAddressShimmer key={i} />
+                                    )
+                                }))
+                            ) : addressQuery?.isError ? (
+                                <p className='text-[1rem] text-center text-red-500 py-4'>
+                                    Error loading saved addresses. Please try again.
+                                </p>
+                            ) : savedaddresses?.length > 0 ? (
+                                savedaddresses?.map((address) => {
+                                    return (
+                                        <SavedAddressBox onClick={() => handleSelectAddress(address)} key={address?._id} address={address} isSelected={selectedAddressId === address?._id} />
+                                    )
+                                })
+                            ) : (
+                                <EmptySavedAddress />
+                            )
+                            }
                         </div>
                     )}
                     {/* login hint */}

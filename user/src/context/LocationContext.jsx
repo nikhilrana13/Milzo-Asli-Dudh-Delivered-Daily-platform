@@ -55,6 +55,7 @@ export const LocationProvider = ({children})=>{
             const detected = await getCityFromCoords(lat,lon)
             const locationdata = {...detected,lat,lon}
             setSelectedLocation(locationdata) 
+            // console.log("location",locationdata)
             localStorage.setItem("selectedLocation",JSON.stringify(locationdata))
         } catch (error) {
             console.error("failed to fetch current location",error)
