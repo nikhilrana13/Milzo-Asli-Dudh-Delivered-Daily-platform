@@ -10,9 +10,10 @@ export const DialogProvider = ({children})=>{
     const [isAuthDialogOpen,setIsAuthDialogOpen] = useState(false)
     const [isLocationDialogOpen,setIsLocationDialogOpen] = useState(false)
     const [activeDialog,setActiveDialog] = useState(null)
+    const [dialogStep,setDialogStep]  = useState(1)
 
     return (
-       <DialogContext.Provider value={{isAuthDialogOpen,setIsAuthDialogOpen,isLocationDialogOpen,setIsLocationDialogOpen,activeDialog,setActiveDialog}}>
+       <DialogContext.Provider value={{isAuthDialogOpen,setIsAuthDialogOpen,isLocationDialogOpen,setIsLocationDialogOpen,activeDialog,setActiveDialog,dialogStep,setDialogStep}}>
         {children}
        </DialogContext.Provider> 
     )

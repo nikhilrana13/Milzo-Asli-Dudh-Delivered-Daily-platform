@@ -10,9 +10,10 @@ const Navbar = () => {
   const { pathname } = useLocation()
   const {setActiveDialog} = useDialog()
   const user = useSelector((state) => state.Auth.user)
-  const { selectedLocation } = useUserLocation()
+  const {selectedLocation} = useUserLocation()
+  // console.log("location",selectedLocation)
   // console.log("selectedLocation", selectedLocation)
-
+  
   const navlinkClass = (path) => {
     return `font-normal relative pb-1 ${pathname === path
       ? "text-[#047857] md:after:content-[''] md:after:absolute md:after:text-[#047857] md:after:transition-all md:after:ease-in md:after:duration-300 md:after:left-0 md:after:-bottom-1 md:after:w-full md:after:h-[3px] md:after:bg-[#047857]"
@@ -56,7 +57,6 @@ const Navbar = () => {
             </div>
             {!user ? (
               <button type='button' onClick={() => setActiveDialog("auth")} className="hidden md:block bg-gradient-to-br from-[#006e2f] from-0% to-[#22c55e] to-100% text-white px-6 py-2.5 rounded-full  font-medium text-sm tracking-tight shadow-md hover:scale-105 transition-transform duration-200 ease-out active:scale-95">Login</button>
-
             ) : (
               // for desktop
               <ProfileDropdown />

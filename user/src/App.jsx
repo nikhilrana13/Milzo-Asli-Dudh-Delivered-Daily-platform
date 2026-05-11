@@ -11,24 +11,25 @@ import Subscriptions from './pages/Subscriptions';
 import Bookings from './pages/Bookings';
 import Profile from './pages/Profile';
 import VendorDetails from './pages/VendorDetails';
-import LocationSelectDialog from './components/common/LocationSelectDialog';
+import LocationSelectDialog from './components/location/LocationSelectDialog';
+import { AnimatePresence } from 'framer-motion';
 
 const App = () => {
-  const {activeDialog,setActiveDialog } = useDialog()
+  const { activeDialog, setActiveDialog, setDialogStep,} = useDialog()
 
 
- 
+
   useEffect(() => {
     const handleUnauthorized = () => {
-      setIsAuthDialogOpen(true)
+      setActiveDialog("auth")
     }
     window.addEventListener("unauthorized", handleUnauthorized)
     return () => {
       window.removeEventListener("unauthorized", handleUnauthorized)
     }
   }, [setActiveDialog])
-   // open login dialog if user is unauthorized
-   useEffect(() => {
+  // open login dialog if user is unauthorized
+  useEffect(() => {
     const token = localStorage.getItem("token");
     const hasShownInSession = sessionStorage.getItem("loginShown");
     // stop if already logged in
@@ -45,7 +46,7 @@ const App = () => {
       }
     }, 3000);
     return () => clearTimeout(timer);
-  }, [activeDialog,setActiveDialog]);
+  }, [activeDialog, setActiveDialog]);
 
   return (
     <>
@@ -70,14 +71,15 @@ const App = () => {
       </div>
       {/* auth dialog for globel access */}
       {activeDialog === "auth" && (
-        <AuthDialog onClose={() => {setActiveDialog(null) }} />
+        <AuthDialog onClose={() => { setActiveDialog(null) }} />
       )}
       {/* select location dialog for global access */}
-      {activeDialog === "location" && (
-        <LocationSelectDialog onClose={() => {setActiveDialog(null) }} />
-      )}
+      <AnimatePresence mode='wait'>
+        {activeDialog === "location" && (
+          <LocationSelectDialog key="location-dialog" onClose={() => { setActiveDialog(null); setDialogStep(1) }} />
+        )}
+      </AnimatePresence>
     </>
-
   );
 }
 

@@ -45,6 +45,7 @@ const getCityFromCoords = async (lat, lon) => {
 const fetchLocationSuggesstions = async (req, res) => {
   try {
     const { query } = req.query;
+    console.log("query",query)
     if (!query || typeof query !== "string" || !query.trim()) {
       return Response(res, 400, "Search value is required");
     }
@@ -79,6 +80,7 @@ const fetchLocationSuggesstions = async (req, res) => {
         lng: parseFloat(item.lon),
       };
     }).filter(Boolean)
+    console.log("suggestions",suggestions)
     return Response(res, 200, "Location suggestions fetched", {
       suggestions,
     });

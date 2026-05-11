@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 
 const BottomNav = () => {
   const { pathname } = useLocation();
-  const { setIsAuthDialogOpen } = useDialog()
+  const { setActiveDialog } = useDialog()
   const user = useSelector((state)=>state.Auth.user)
 
 
@@ -68,7 +68,7 @@ const BottomNav = () => {
           </NavLink>
         ) : (
           <button
-            onClick={() => setIsAuthDialogOpen(true)}
+            onClick={() => setActiveDialog("auth")}
             className="flex flex-col items-center flex-1"
           >
             <MdPerson className="text-xl text-gray-500" />

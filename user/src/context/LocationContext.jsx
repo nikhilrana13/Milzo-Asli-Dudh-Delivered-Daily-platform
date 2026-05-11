@@ -18,7 +18,7 @@ const getUserLocation = () => {
       (pos) => {
         resolve({
           lat: pos.coords.latitude,
-          lon: pos.coords.longitude
+          lng: pos.coords.longitude
         })
       },
       (err) => reject(err)
@@ -27,9 +27,9 @@ const getUserLocation = () => {
 }
 
 //  Helper Reverse Geocode
-const getCityFromCoords = async (lat, lon) => {
+const getCityFromCoords = async (lat, lng) => {
   const res = await fetch(
-    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+    `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`
   )
   const data = await res.json()
   const addr = data?.address || {}
@@ -46,14 +46,14 @@ export const LocationProvider = ({children})=>{
         state:"",
         pincode:"",
         lat:"",
-        lon:""
+        lng:""
      })
 
     const fetchUserCurrentLocation = async()=>{
         try {
-            const {lat,lon} = await getUserLocation()
-            const detected = await getCityFromCoords(lat,lon)
-            const locationdata = {...detected,lat,lon}
+            const {lat,lng} = await getUserLocation()
+            const detected = await getCityFromCoords(lat,lng)
+            const locationdata = {...detected,lat,lng}
             setSelectedLocation(locationdata) 
             // console.log("location",locationdata)
             localStorage.setItem("selectedLocation",JSON.stringify(locationdata))
@@ -80,5 +80,6 @@ export const LocationProvider = ({children})=>{
 
 
 export const useUserLocation  = ()=> useContext(LocationContext)
+
 
 
