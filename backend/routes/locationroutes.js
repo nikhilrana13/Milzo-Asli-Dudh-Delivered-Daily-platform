@@ -3,7 +3,7 @@ const {fetchLocationSuggesstions, FetchLocationFromCoords } = require("../utils/
 const router = express.Router()
 
 
-router.get("/fetch-location-from-coords",FetchLocationFromCoords)
+router.post("/fetch-location-from-coords",FetchLocationFromCoords)
 router.get("/fetch-suggestions",fetchLocationSuggesstions)
 
 

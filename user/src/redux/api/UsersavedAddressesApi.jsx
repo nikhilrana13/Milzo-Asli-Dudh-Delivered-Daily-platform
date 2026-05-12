@@ -7,12 +7,36 @@ import baseQueryWithAuth from "./BaseQuery";
 export const UserSavedAddressesApi = createApi({
     reducerPath:"UserSavedAddressesApi",
     baseQuery:baseQueryWithAuth,
+    tagTypes:["SavedAddresses"],
     endpoints:(builder)=>({
+        // get user addresses
         getUserSavedAddresses:builder.query({
-            query:()=> '/api/user/all-address'
+            query:()=> '/api/user/all-address',
+            providesTags:["SavedAddresses"]
+        }),
+        // add new address 
+        addNewAddress:builder.mutation({
+             query:(formdata)=>({
+                url:"/api/user/add-address",
+                method:"PUT",
+                body:{
+                    newaddress:formdata
+                }
+             }),
+             invalidatesTags:["SavedAddresses"]
+        }),
+        // delete address 
+        deleteAddress:builder.mutation({
+           query:(id)=>({
+            url:"/api/user/address-delete",
+            method:"DELETE",
+            body:{
+                addressId:id
+            }
+           }),
+           invalidatesTags:["SavedAddresses"]
         })
-    })
-
+    }),
 })
 
-export const {useGetUserSavedAddressesQuery} = UserSavedAddressesApi
+export const {useGetUserSavedAddressesQuery,useAddNewAddressMutation,useDeleteAddressMutation} = UserSavedAddressesApi

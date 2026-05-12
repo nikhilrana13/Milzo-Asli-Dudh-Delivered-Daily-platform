@@ -72,7 +72,7 @@ export const LocationProvider = ({children})=>{
     },[])
 
     return(
-        <LocationContext.Provider value={{selectedLocation,setSelectedLocation,fetchUserCurrentLocation}}>
+        <LocationContext.Provider value={{selectedLocation,setSelectedLocation,fetchUserCurrentLocation,getUserLocation}}>
             {children}
         </LocationContext.Provider>
     )
