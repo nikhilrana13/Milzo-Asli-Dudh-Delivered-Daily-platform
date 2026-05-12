@@ -14,6 +14,7 @@ import LocationSuggestionList from './LocationSuggestionList'
 import AddnewAddress from './AddnewAddress';
 import UpdateAddress from './UpdateAddress';
 import { IoArrowBack } from 'react-icons/io5';
+import {motion} from "framer-motion"
 
 
 
