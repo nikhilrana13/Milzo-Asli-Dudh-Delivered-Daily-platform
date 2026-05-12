@@ -1,5 +1,6 @@
-import { SetUser } from '@/redux/AuthSlice';
+import { logout, SetUser } from '@/redux/AuthSlice';
 import { api } from '@/services/api';
+import { resetAllApiCache } from '@/utils/resetApiCache';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -15,6 +16,8 @@ const useLogout = () => {
                 toast.success(response?.message)
                 localStorage.removeItem("token")
                 dispatch(SetUser(null))
+                dispatch(logout())
+                resetAllApiCache()
                 navigate("/")
             }
         } catch (error) {

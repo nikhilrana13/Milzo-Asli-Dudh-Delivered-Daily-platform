@@ -13,6 +13,7 @@ import Profile from './pages/Profile';
 import VendorDetails from './pages/VendorDetails';
 import LocationSelectDialog from './components/location/LocationSelectDialog';
 import { AnimatePresence } from 'framer-motion';
+import { resetAllApiCache } from './utils/resetApiCache';
 
 const App = () => {
   const { activeDialog, setActiveDialog, setDialogStep,} = useDialog()
@@ -22,6 +23,7 @@ const App = () => {
   useEffect(() => {
     const handleUnauthorized = () => {
       setActiveDialog("auth")
+      resetAllApiCache()
     }
     window.addEventListener("unauthorized", handleUnauthorized)
     return () => {

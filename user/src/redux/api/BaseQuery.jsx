@@ -1,5 +1,6 @@
 import { fetchBaseQuery } from "@reduxjs/toolkit/query";
 import { logout } from "../AuthSlice";
+import { UserSavedAddressesApi } from "./UsersavedAddressesApi";
 
 
 const baseQuery = fetchBaseQuery({
@@ -23,7 +24,7 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
     if (status === 401 && !isAuthApi) {
       localStorage.setItem("lastPath", window.location.pathname); // save current page pathname
       localStorage.removeItem("token");
-      api.dispatch(logout())
+      api.dispatch(logout()) 
       window.dispatchEvent(new Event("unauthorized"));
     }
   }
