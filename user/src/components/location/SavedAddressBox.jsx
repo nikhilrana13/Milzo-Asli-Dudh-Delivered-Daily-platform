@@ -5,7 +5,7 @@ import { BsThreeDotsVertical } from 'react-icons/bs';
 import { HiOutlineMapPin } from 'react-icons/hi2';
 import { toast } from 'react-toastify';
 
-const SavedAddressBox = ({ address, onClick, isSelected }) => {
+const SavedAddressBox = ({ address, onClick, isSelected,onEdit}) => {
     const [openMenu, setOpenMenu] = useState(false)
     const [deleteAddress,{isLoading}] = useDeleteAddressMutation()
     // console.log("address",address)
@@ -61,7 +61,7 @@ const SavedAddressBox = ({ address, onClick, isSelected }) => {
                     </button>
                     {openMenu && (
                         <div onClick={(e)=>e.stopPropagation()} className="absolute right-0 top-10 w-32 rounded-xl border bg-white shadow-lg overflow-hidden z-20">
-                            <button className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50">
+                            <button onClick={()=>onEdit(address)} className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50">
                                 Edit
                             </button>
                             <button disabled={isLoading} onClick={()=>handleDeleteAddress(address?._id)} className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50">

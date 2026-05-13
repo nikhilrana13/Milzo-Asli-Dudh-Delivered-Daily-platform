@@ -11,10 +11,11 @@ import useSearchLocation from '@/hooks/useSearchLocation';
 import LocationSearchInput from './LocationSearchInput';
 import CurrentLocationButton from './CurrentLocationButton';
 import LocationSuggestionList from './LocationSuggestionList'
-import AddnewAddress from './AddnewAddress';
+import AddnewAddress from './AddressForm';
 import UpdateAddress from './UpdateAddress';
 import { IoArrowBack } from 'react-icons/io5';
 import {motion} from "framer-motion"
+import AddressForm from './AddressForm';
 
 
 
@@ -34,6 +35,7 @@ const LocationSelectDialog = ({ onClose }) => {
     const search = useSearchLocation()
     const { setSelectedLocation, fetchUserCurrentLocation } = useUserLocation()
     const isSearchingUi = search?.loading || search?.showSuggestions || (search?.hasSearched && search.query.length >= 1)
+    const [editingAddress, setEditingAddress] = useState(null)
 
 
     const handleSelectAddress = (address) => {
@@ -92,7 +94,6 @@ const LocationSelectDialog = ({ onClose }) => {
                             <IoArrowBack size={22} />
                         </button>
                         )}
-                       
                         {dialogStep > 1 && (
                             <button
                                 onClick={() => setDialogStep(1)}
@@ -152,7 +153,11 @@ const LocationSelectDialog = ({ onClose }) => {
                                         ) : savedaddresses?.length > 0 ? (
                                             savedaddresses?.map((address) => {
                                                 return (
-                                                    <SavedAddressBox onClick={() => handleSelectAddress(address)} key={address?._id} address={address} isSelected={selectedAddressId === address?._id} />
+                                                    <SavedAddressBox onClick={() => handleSelectAddress(address)} key={address?._id} address={address} isSelected={selectedAddressId === address?._id} 
+                                                    onEdit={(address)=>{
+                                                        setEditingAddress(address)
+                                                        setDialogStep(3)
+                                                    }} />
                                                 )
                                             })
                                         ) : (
@@ -174,11 +179,10 @@ const LocationSelectDialog = ({ onClose }) => {
                 )}
                 {/* add new address ui */}
                 {dialogStep === 2 && (
-                    <AddnewAddress />
+                    <AddressForm mode="add" />
                 )}
-                {/* update address */}
                 {dialogStep === 3 && (
-                    <UpdateAddress />
+                    <AddressForm mode="edit" initialData={editingAddress} addressId={editingAddress?._id} />
                 )}
             </motion.div>
         </>

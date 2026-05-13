@@ -35,8 +35,20 @@ export const UserSavedAddressesApi = createApi({
             }
            }),
            invalidatesTags:["SavedAddresses"]
+        }),
+        // update address 
+        updateAddress:builder.mutation({
+            query:({addressId,formdata})=>({
+                url:"/api/user/update-address",
+                method:"PUT",
+                body:{
+                    addressId,
+                    ...formdata
+                }
+            }),
+             invalidatesTags:["SavedAddresses"]
         })
     }),
 })
 
-export const {useGetUserSavedAddressesQuery,useAddNewAddressMutation,useDeleteAddressMutation} = UserSavedAddressesApi
+export const {useGetUserSavedAddressesQuery,useAddNewAddressMutation,useDeleteAddressMutation,useUpdateAddressMutation} = UserSavedAddressesApi

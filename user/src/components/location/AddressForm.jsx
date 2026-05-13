@@ -1,21 +1,18 @@
-import { useDialog } from '@/context/DialogContext';
 import { useUserLocation } from '@/context/LocationContext';
-import { useAddNewAddressMutation } from '@/redux/api/UsersavedAddressesApi';
+import useAddAndEditAddress from '@/hooks/useAddAndEditAddress';
 import { api } from '@/services/api';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { IoLocationOutline } from 'react-icons/io5';
 import { MdMyLocation } from 'react-icons/md';
-import { toast } from 'react-toastify';
 
-const AddnewAddress = () => {
-  const { register, handleSubmit,setValue,formState: { errors } } = useForm()
+
+const AddressForm = ({ mode, initialData, addressId }) => {
+  const { register, handleSubmit, reset,setValue, formState: { errors } } = useForm()
   const [showLocationDetails, setShowLocationDetails] = useState(false)
   const { getUserLocation } = useUserLocation()
-  const [addNewAddress, { isLoading }] = useAddNewAddressMutation()
-  const [selectedLabel, setSelectedLabel] = useState("home")
-  const { setDialogStep } = useDialog()
-
+  const [selectedLabel, setSelectedLabel] = useState(initialData?.label || "home")
+  const { onSubmit, isLoading } = useAddAndEditAddress({ mode, addressId })
   // fetch city state pincode using lat lon 
   const handleFetchLocationDetails = async () => {
     try {
@@ -39,25 +36,30 @@ const AddnewAddress = () => {
       setShowLocationDetails(false)
     }
   }
-  const onSubmit = async (data) => {
-    const formdata = {
-      label:selectedLabel,
-      city:data.city,
-      state:data.state,
-      pincode:data.pincode,
-      addressLine:data.addressLine,
-      lat:data.lat,
-      lng:data.lng
-    }
+  const handleAddressSubmit = async (data) => {
     try {
-      const response = await addNewAddress(formdata).unwrap()
-      toast.success(response?.messsage)
-      setDialogStep(1)
+      await onSubmit(data, selectedLabel)
     } catch (error) {
-      console.error("failed to add new address", error)
-      toast.error(error?.data?.message || "Internal server error")
+      console.error("failed to address operation", error)
     }
   }
+  
+  useEffect(() => {
+    if (initialData) {
+      reset({
+        city: initialData?.city || "",
+        state: initialData?.state || "",
+        pincode: initialData?.pincode || "",
+        addressLine: initialData?.addressLine || "",
+        lat:initialData?.location?.coordinates?.[1] || "",
+        lng:initialData?.location?.coordinates?.[0] || ""
+      })
+      setSelectedLabel(
+        initialData?.label || "home"
+      )
+    }
+  }, [initialData, reset])
+
   return (
     <div className="min-h-full">
       {/* content */}
@@ -96,7 +98,7 @@ const AddnewAddress = () => {
           </div>
         )}
         {/* form */}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+        <form onSubmit={handleSubmit(handleAddressSubmit)} className="space-y-5">
           <input type="hidden" {...register("lat")} />
           <input type="hidden" {...register("lng")} />
           {/* label */}
@@ -235,8 +237,11 @@ const AddnewAddress = () => {
                             active:scale-[0.99] transition-all duration-200">
             {isLoading ? <div className="flex items-center justify-center gap-2">
               <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
-              <span>Saving Address...</span>
-            </div> : "Save Address"}
+              <span>
+                {mode === "edit" ? "Updating Address..." : "Saving Address..."}
+              </span>
+            </div> : (
+              mode === "edit" ? "Update Address" : "Save Address")}
           </button>
         </form>
       </div>
@@ -244,4 +249,4 @@ const AddnewAddress = () => {
   );
 }
 
-export default AddnewAddress;
+export default AddressForm;
