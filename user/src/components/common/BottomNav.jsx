@@ -10,7 +10,7 @@ const BottomNav = () => {
   const { setActiveDialog } = useDialog()
   const user = useSelector((state)=>state.Auth.user)
 
-
+  
   const tabs = [
     { path: "/", icon: <MdHome />, label: "Home" },
     { path: "/vendors", icon: <MdStore />, label: "Vendors" },
