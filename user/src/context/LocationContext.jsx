@@ -57,6 +57,7 @@ export const LocationProvider = ({children})=>{
             setSelectedLocation(locationdata) 
             // console.log("location",locationdata)
             localStorage.setItem("selectedLocation",JSON.stringify(locationdata))
+            return locationdata
         } catch (error) {
             console.error("failed to fetch current location",error)
         }
@@ -66,8 +67,6 @@ export const LocationProvider = ({children})=>{
         const savedLocation = localStorage.getItem("selectedLocation")
         if(savedLocation){
             setSelectedLocation(JSON.parse(savedLocation))
-        }else{
-            fetchUserCurrentLocation()
         }
     },[])
 

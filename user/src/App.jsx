@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Vendors from './pages/Vendors';
 import { ToastContainer } from 'react-toastify';
@@ -14,10 +14,13 @@ import VendorDetails from './pages/VendorDetails';
 import LocationSelectDialog from './components/location/LocationSelectDialog';
 import { AnimatePresence } from 'framer-motion';
 import { resetAllApiCache } from './utils/resetApiCache';
+import { useUserLocation } from './context/LocationContext';
+import LocationProtectedRoute from './middleware/LocationProtectedRoute';
 
 const App = () => {
   const { activeDialog, setActiveDialog, setDialogStep,} = useDialog()
-
+  const {selectedLocation} = useUserLocation()
+  const navigate = useNavigate()
 
 
   useEffect(() => {
@@ -49,6 +52,7 @@ const App = () => {
     }, 3000);
     return () => clearTimeout(timer);
   }, [activeDialog, setActiveDialog]);
+  
 
   return (
     <>
@@ -58,7 +62,7 @@ const App = () => {
           {/* public route */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
-            <Route path='/vendors' element={<Vendors />} />
+            <Route path='/vendors' element={<LocationProtectedRoute><Vendors /></LocationProtectedRoute>} />
             <Route path='/vendor/:id' element={<VendorDetails />} />
           </Route>
           {/* user pages */}
@@ -78,7 +82,11 @@ const App = () => {
       {/* select location dialog for global access */}
       <AnimatePresence mode='wait'>
         {activeDialog === "location" && (
-          <LocationSelectDialog key="location-dialog" onClose={() => { setActiveDialog(null); setDialogStep(1) }} />
+          <LocationSelectDialog key="location-dialog" onClose={() => { 
+            if(!selectedLocation.city){
+              navigate("/")
+            }
+            setActiveDialog(null); setDialogStep(1) }} />
         )}
       </AnimatePresence>
     </>

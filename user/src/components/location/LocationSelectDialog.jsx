@@ -42,8 +42,8 @@ const LocationSelectDialog = ({ onClose }) => {
         localStorage.setItem("selectedAddressId", address?._id)
         setSelectedAddressId(address?._id)
     }
-    const handleFetchCurrentLocation = () => {
-        fetchUserCurrentLocation()
+    const handleFetchCurrentLocation = async() => {
+        await fetchUserCurrentLocation()
         setActiveDialog(null)
     }
 

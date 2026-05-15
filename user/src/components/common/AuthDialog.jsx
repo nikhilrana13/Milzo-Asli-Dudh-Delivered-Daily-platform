@@ -16,11 +16,12 @@ import useLockBodyScroll from '@/hooks/useLockBodyScroll';
 const AuthDialog = ({ onClose }) => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
+    const { setActiveDialog } = useDialog()
     // useLockBodyScroll(true)
     const handleLoginWithGoogle = async () => {
         try {
             await signInWithPopup(auth, GoogleProvider)
-            const response = await api.post("/api/auth/test-google", {})
+            const response = await api.post("/api/auth/google-login", {})
             if (response) {
                 toast.success(response?.message)
                 // console.log("response",response?.data)
