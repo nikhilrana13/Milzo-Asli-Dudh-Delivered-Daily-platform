@@ -3,7 +3,7 @@ import {motion} from "framer-motion"
 
 const Footer = () => {
   return (
-     <footer className="w-full border rounded-t-2xl">
+     <footer className="w-full hidden md:block border rounded-t-2xl">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}

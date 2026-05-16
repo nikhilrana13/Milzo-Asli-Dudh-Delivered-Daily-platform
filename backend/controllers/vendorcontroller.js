@@ -373,7 +373,7 @@ const UpdateVendorProfile = async (req, res) => {
 // find nearby vendors based on user selected location
 const FindVendors = async (req, res) => {
   try {
-    let { lat, lng, page = 1, limit = 10, toprated, maxDistance } = req.query;
+    let { lat, lng, page = 1, limit = 6, toprated, maxDistance } = req.query;
     page = parseInt(page);
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
@@ -415,6 +415,9 @@ const FindVendors = async (req, res) => {
           distance: { $round: ["$distance", 2] },
           dairyImages: 1,
           city: 1,
+          description:1,
+          isKycApproved:1,
+          isActive:1
         },
       },
     ];

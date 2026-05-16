@@ -1,7 +1,9 @@
+import EmptyState from '@/components/common/EmptyState';
 import VendorCard from '@/components/vendor/VendorCard';
-import { useDialog } from '@/context/DialogContext';
+import VendorCardShimmer from '@/components/vendor/VendorCardShimmer';
 import { useUserLocation } from '@/context/LocationContext';
-import React, { useEffect, useLayoutEffect, useState } from 'react';
+import { useFetchNearByVendorsQuery } from '@/redux/api/VendorsApi';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { MdExplore, MdStar } from 'react-icons/md';
 import { TbRoute, TbRoute2 } from 'react-icons/tb';
@@ -11,11 +13,30 @@ import { TbRoute, TbRoute2 } from 'react-icons/tb';
 
 
 const Vendors = () => {
+  const { selectedLocation } = useUserLocation()
   const [filters, setFilters] = useState({
     toprated: false,
     maxDistance: null
   })
- 
+  const [page, setPage] = useState(1)
+  const { data, isLoading, isError, isFetching } = useFetchNearByVendorsQuery({
+    lat: selectedLocation?.lat,
+    lng: selectedLocation?.lng,
+    toprated: filters.toprated,
+    maxDistance: filters.maxDistance,
+    page: page,
+  },
+    // wait until user location is available before calling API
+    // also refetch fresh data when component remounts or query params change
+    {
+      skip: !selectedLocation?.lat || !selectedLocation?.lng,
+      refetchOnMountOrArgChange: true,
+    }
+  )
+  const nearbyVendors = data?.data?.vendors
+  const pagination = data?.data?.pagination || {}
+  const loaderRef = useRef()
+  const [allVendors, setAllVendors] = useState([])
   const handleTopratedToggle = () => {
     setFilters((prev) => ({
       ...prev, toprated: !prev.toprated
@@ -26,6 +47,52 @@ const Vendors = () => {
       ...prev, maxDistance: prev.maxDistance === 15 ? null : 15
     }))
   }
+  // append new vendors while avoiding duplicates
+  useEffect(() => {
+    // first page → replace vendors completely
+    if (page === 1) {
+      setAllVendors(nearbyVendors || [])
+      return
+    }
+    // next pages → append unique vendors
+    if (nearbyVendors?.length > 0) {
+      setAllVendors((prev) => {
+        const existingIds = new Set(prev.map((v) => v._id))
+        const newVendors = nearbyVendors.filter(
+          (v) => !existingIds.has(v._id)
+        )
+        return [...prev, ...newVendors]
+      })
+    }
+  }, [nearbyVendors, page])
+  // reset on filter change
+  useEffect(() => {
+    setPage(1)
+  }, [filters.toprated, filters.maxDistance, selectedLocation?.lat, selectedLocation?.lng])
+  // infinite scroll intersection observer
+  useEffect(() => {
+     if (!loaderRef.current || isLoading || isError || allVendors.length === 0) return
+    const observer = new IntersectionObserver((entries) => {
+      const first = entries[0]
+      if (first.isIntersecting && pagination?.currentPage < pagination?.totalPages && !isFetching) {
+        setPage((prev) => prev + 1)
+      }
+    },
+      {
+        threshold: 0.3,
+        rootMargin: "100px"
+      })
+    const currentLoader = loaderRef.current
+    if (currentLoader) {
+      observer.observe(currentLoader)
+    }
+    return () => {
+      if (currentLoader) {
+        observer.disconnect()
+      }
+    }
+  }, [pagination?.currentPage, pagination?.totalPages, isFetching,isLoading,isError,allVendors?.length])
+
   return (
     <div className='py-8'>
       {/* heading */}
@@ -42,7 +109,7 @@ const Vendors = () => {
           </h1>
           <p className="text-gray-500 font-medium flex items-center gap-2 text-sm sm:text-base">
             <HiOutlineLocationMarker className="text-[#16a34a]" />
-            Showing vendors near Indira nagar, Bengaluru
+            Showing vendors near {selectedLocation?.city || "NA"}, {selectedLocation?.state || "NA"}
           </p>
         </div>
         {/* filters */}
@@ -66,15 +133,35 @@ const Vendors = () => {
         </div>
       </div>
       {/* vendors card */}
-      <div className='mx-auto mt-9 max-w-7xl px-5 sm:px-6 grid grid-cols-1 md:grid-cols-3  gap-8'>
-        <VendorCard />
-        <VendorCard />
-        <VendorCard />
-        <VendorCard />
-        <VendorCard />
-        <VendorCard />
-      </div>
-
+      {isLoading ? (
+        <div className='mx-auto mt-9 max-w-7xl px-5 sm:px-6 grid grid-cols-1 md:grid-cols-3 gap-8'>
+          {[1, 2, 3, 4, 5, 6].map((_, i) => {
+            return (
+              <VendorCardShimmer key={i} />
+            )
+          })}
+        </div>
+      ) : allVendors?.length > 0 ? (
+        <div className='mx-auto mt-9 max-w-7xl px-5 sm:px-6 grid grid-cols-1 md:grid-cols-3  gap-8'>
+          {allVendors.map((vendor) => {
+            return (
+              <VendorCard key={vendor?._id} vendor={vendor} />
+            )
+          })}
+        </div>
+      ) : (
+        <EmptyState isError={isError} />
+      )
+      }
+      {/* infinite scroll loader */}
+      {allVendors?.length > 0 && (
+        <div ref={loaderRef} className="h-20 flex items-center justify-center">
+          {isFetching &&
+            pagination?.currentPage < pagination?.totalPages && (
+              <div className="h-10 w-10 rounded-full border-4 border-[#dcfce7] border-t-[#16a34a] animate-spin" />
+            )}
+        </div>
+      )}
     </div>
   );
 }
