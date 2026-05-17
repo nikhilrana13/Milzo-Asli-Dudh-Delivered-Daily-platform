@@ -3,10 +3,12 @@ import VendorCard from '@/components/vendor/VendorCard';
 import VendorCardShimmer from '@/components/vendor/VendorCardShimmer';
 import { useUserLocation } from '@/context/LocationContext';
 import { useFetchNearByVendorsQuery } from '@/redux/api/VendorsApi';
+import { generateSlug } from '@/utils/Helpers';
 import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { HiOutlineLocationMarker } from 'react-icons/hi';
 import { MdExplore, MdStar } from 'react-icons/md';
 import { TbRoute, TbRoute2 } from 'react-icons/tb';
+import { useNavigate } from 'react-router-dom';
 
 
 
@@ -35,6 +37,7 @@ const Vendors = () => {
   )
   const nearbyVendors = data?.data?.vendors
   const pagination = data?.data?.pagination || {}
+  const navigate = useNavigate()
   const loaderRef = useRef()
   const [allVendors, setAllVendors] = useState([])
   const handleTopratedToggle = () => {
@@ -145,7 +148,9 @@ const Vendors = () => {
         <div className='mx-auto mt-9 max-w-7xl px-5 sm:px-6 grid grid-cols-1 md:grid-cols-3  gap-8'>
           {allVendors.map((vendor) => {
             return (
-              <VendorCard key={vendor?._id} vendor={vendor} />
+              <VendorCard key={vendor?._id} vendor={vendor} onViewProducts={()=>{
+                navigate(`/vendor/${vendor?._id}/${generateSlug(vendor?.displayName)}`)
+              }} />
             )
           })}
         </div>

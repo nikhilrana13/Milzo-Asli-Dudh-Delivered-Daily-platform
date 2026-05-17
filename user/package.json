@@ -22,7 +22,9 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.14.2",
     "react-toastify": "^11.1.0",
-    "redux-persist": "^6.0.0"
+    "redux-persist": "^6.0.0",
+    "slugify": "^1.6.9",
+    "swiper": "^12.1.4"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

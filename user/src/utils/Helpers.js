@@ -1,4 +1,4 @@
-
+import slugify from "slugify"
 export const capitalizeWords = (str = "") => {
   return str
     .toLowerCase()
@@ -13,3 +13,5 @@ export const formatDistance = (distance) => {
    }
    return `${distance.toFixed(1)} km away`
 }
+
+export const generateSlug = (text) => slugify(text || "", { lower: true, strict: true })

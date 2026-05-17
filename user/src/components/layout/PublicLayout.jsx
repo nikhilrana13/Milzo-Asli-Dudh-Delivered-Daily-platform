@@ -7,7 +7,7 @@ import Footer from '../common/Footer';
 const PublicLayout = () => {
   const location = useLocation()
 
-  const hideFooter = location.pathname === "/vendors"
+  const hideFooter = location.pathname === "/vendors" || "/vendor"
   return (
     <>
       <Navbar />

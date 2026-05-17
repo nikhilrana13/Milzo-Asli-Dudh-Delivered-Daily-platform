@@ -511,12 +511,12 @@ const FetchVendorDetails = async (req, res) => {
     }
     // check vendor exists or not
     const vendor = await Vendor.findById(vendorId).select(
-      "displayName rating totalReviews description kycStatus dairyImages dairyVideos",
+      "displayName rating totalReviews description kycStatus dairyImages dairyVideos city pincode state",
     );
     if (!vendor) {
       return Response(res, 404, "Vendor not found");
     }
-    return Response(res, 200, { vendorDetails: vendor });
+    return Response(res, 200,"vendor details fetch",{ vendorDetails: vendor });
   } catch (error) {
     console.error("failed to fetch vendor details", error);
     return Response(res, 500, "Internal server error");

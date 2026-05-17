@@ -63,7 +63,7 @@ const App = () => {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<Home />} />
             <Route path='/vendors' element={<LocationProtectedRoute><Vendors /></LocationProtectedRoute>} />
-            <Route path='/vendor/:id' element={<VendorDetails />} />
+            <Route path='/vendor/:id/:slug' element={<VendorDetails />} />
           </Route>
           {/* user pages */}
           <Route element={<UserLayout />}>
