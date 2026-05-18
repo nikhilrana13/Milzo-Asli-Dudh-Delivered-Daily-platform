@@ -35,8 +35,17 @@ export const VendorsApi = createApi({
             query:(id)=>({
                 url:`/api/vendor/${id}`,
                 method:"GET",
-                
-                
+            }),
+            providesTags:["VendorsApi"]
+        }),
+        // vendor all products
+        FetchVendorProducts:builder.query({
+            query:(id)=>({
+                url:`/api/vendor/products`,
+                method:"GET",
+                params:{
+                    vendorId:id
+                }
             }),
             providesTags:["VendorsApi"]
         })
@@ -44,4 +53,4 @@ export const VendorsApi = createApi({
 })
 
 
-export const { useFetchNearByVendorsQuery,useFetchVendorDetailsQuery} = VendorsApi
+export const { useFetchNearByVendorsQuery,useFetchVendorDetailsQuery,useFetchVendorProductsQuery} = VendorsApi

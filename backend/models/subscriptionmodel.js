@@ -9,7 +9,8 @@ const subscriptionSchema = new mongoose.Schema(
       required: true,
     },
     quantity: { type: Number, required: true },
-    unit: { type: String, enum: ["ml", "litre", "g", "kg"], required: true },
+    // selected product variant
+   selectedPriceOptionId: {type: mongoose.Types.ObjectId,required: true},
     pricePerDay: { type: Number, required: true },
     totalDays: { type: Number, default: 30 },
     totalAmount: { type: Number, required: true },

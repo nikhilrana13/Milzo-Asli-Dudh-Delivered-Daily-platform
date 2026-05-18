@@ -17,8 +17,7 @@ const CreateSubscriptionBooking = async (req, res) => {
       productId,
       vendorId,
       quantity,
-      unit,
-      pricePerDay,
+      selectedPriceOptionId,
       startDate,
       endDate,
       campaignId,
@@ -30,8 +29,7 @@ const CreateSubscriptionBooking = async (req, res) => {
       "productId",
       "vendorId",
       "quantity",
-      "unit",
-      "pricePerDay",
+      "selectedPriceOptionId",
       "endDate",
       "deliveryAddress",
     ];
@@ -41,19 +39,10 @@ const CreateSubscriptionBooking = async (req, res) => {
       }
     }
 
-    // Type and value validation
+    // quantity validation
     const parsedQuantity = Number(quantity);
-    const parsedPricePerDay = Number(pricePerDay);
-
     if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
       return Response(res, 400, "Invalid quantity - must be a positive number");
-    }
-    if (isNaN(parsedPricePerDay) || parsedPricePerDay <= 0) {
-      return Response(res, 400, "Invalid price - must be a positive number");
-    }
-    // Unit validation
-    if (!["ml", "litre", "g", "kg"].includes(unit)) {
-      return Response(res, 400, "Invalid unit - must be ml, litre, g, or kg");
     }
     // Authentication && authorization
     const user = await User.findById(userId);
@@ -65,6 +54,15 @@ const CreateSubscriptionBooking = async (req, res) => {
     if (!product) {
       return Response(res, 400, "Invalid product");
     }
+    // find price option
+    const selectedPriceOption = product?.priceOptions?.find(
+      (option) => option?._id?.toString() === selectedPriceOptionId,
+    );
+    if (!selectedPriceOption) {
+      return Response(res, 400, "Invalid price option");
+    }
+    const pricePerDay = selectedPriceOption?.sellingPrice;
+    const unit = selectedPriceOption?.unit;
     const vendor = await Vendor.findById(vendorId);
     if (!vendor) {
       return Response(res, 400, "Invalid vendor");
@@ -125,7 +123,7 @@ const CreateSubscriptionBooking = async (req, res) => {
       return Response(res, 400, "Invalid subscription duration");
     }
     // calculate total amount
-    const totalAmount = parsedPricePerDay * parsedQuantity * totalDays;
+    const totalAmount = pricePerDay * parsedQuantity * totalDays;
     // apply discount offer
     let offerResult;
     try {
@@ -135,7 +133,7 @@ const CreateSubscriptionBooking = async (req, res) => {
         totalAmount,
       });
     } catch (err) {
-      console.error("failed to calculate offer",err)
+      console.error("failed to calculate offer", err);
       return Response(res, 400, err.message);
     }
     const { finalAmount, discountAmount, appliedCampaign } = offerResult;
@@ -145,8 +143,8 @@ const CreateSubscriptionBooking = async (req, res) => {
       productId,
       vendorId,
       quantity: parsedQuantity,
-      unit,
-      pricePerDay: parsedPricePerDay,
+      selectedPriceOptionId,
+      pricePerDay,
       totalDays,
       totalAmount: finalAmount,
       originalAmount: totalAmount,
@@ -265,7 +263,9 @@ const StripeWebhookHandler = async (req, res) => {
           );
           return res.json({ received: true });
         }
-        // Use transaction for atomic operations
+        // Using transaction for safe database operations.
+        // If any step fails in between (like subscription creation),
+        // all previous changes will be undone automatically.
         const dbSession = await mongoose.startSession();
         dbSession.startTransaction();
         try {
@@ -295,11 +295,13 @@ const StripeWebhookHandler = async (req, res) => {
             ],
             { session: dbSession },
           );
+          // save
           await dbSession.commitTransaction();
           console.log(
             `Successfully processed payment for booking ${bookingId}`,
           );
         } catch (transactionError) {
+          // undo all previous changes
           await dbSession.abortTransaction();
           console.error(
             `Transaction failed for booking ${bookingId}:`,
@@ -383,7 +385,7 @@ const UpdatePaymentStatus = async (req, res) => {
             vendorId: booking.vendorId,
             productId: booking.productId,
             quantity: booking.quantity,
-            unit: booking.unit,
+            selectedPriceOptionId: booking.selectedPriceOptionId,
             pricePerDay: booking.pricePerDay,
             totalDays: booking.totalDays,
             totalAmount: booking.totalAmount,

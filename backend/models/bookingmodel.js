@@ -4,7 +4,10 @@ const bookingSchema = new mongoose.Schema({
   productId: { type: mongoose.Types.ObjectId, ref: "Product" },
   vendorId: { type: mongoose.Types.ObjectId, ref: "Vendor" },
   quantity: Number,
-  unit: String,
+  selectedPriceOptionId: {
+      type: mongoose.Types.ObjectId,
+      required: true
+   },
   pricePerDay: Number,
   totalDays: Number,
   totalAmount: Number,
