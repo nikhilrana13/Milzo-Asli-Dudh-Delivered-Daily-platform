@@ -16,8 +16,7 @@ import useLockBodyScroll from '@/hooks/useLockBodyScroll';
 const AuthDialog = ({ onClose }) => {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const { setActiveDialog } = useDialog()
-    // useLockBodyScroll(true)
+    useLockBodyScroll(true)
     const handleLoginWithGoogle = async () => {
         try {
             await signInWithPopup(auth, GoogleProvider)

@@ -1,6 +1,7 @@
 import ProductCard from '@/components/product/ProductCard'
 import ProductCardShimmer from '@/components/product/ProductCardShimmer'
 import ProductsState from '@/components/product/ProductsState'
+import SubscriptionSummary from '@/components/subscription/SubscriptionSummary'
 import VendorDetailsHeader from '@/components/vendor/VendorDetailsHeader'
 import VendorDetailsHeaderSkeleton from '@/components/vendor/VendorDetailsHeaderSkeleton'
 import { useFetchVendorDetailsQuery, useFetchVendorProductsQuery } from '@/redux/api/VendorsApi'
@@ -70,9 +71,7 @@ const VendorDetails = () => {
         {/* subscription create card */}
         {
           selectedProductData && (
-            <div className='w-full sticky hidden lg:block top-28 bg-white rounded-[24px] border md:w-[400px]'>
-
-            </div>
+            <SubscriptionSummary selectProductData={selectedProductData} selectedPriceOption={selectedPriceOption} />
           )
         }
       </div>

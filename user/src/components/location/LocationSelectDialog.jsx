@@ -41,6 +41,7 @@ const LocationSelectDialog = ({ onClose }) => {
     const handleSelectAddress = (address) => {
         localStorage.setItem("selectedAddressId", address?._id)
         setSelectedAddressId(address?._id)
+        onClose()
     }
     const handleFetchCurrentLocation = async() => {
         await fetchUserCurrentLocation()
@@ -161,7 +162,7 @@ const LocationSelectDialog = ({ onClose }) => {
                                                 )
                                             })
                                         ) : (
-                                            <EmptySavedAddress />
+                                            <EmptySavedAddress openAddDialog={()=>setDialogStep(2)} />
                                         )
                                         }
                                     </div>

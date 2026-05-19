@@ -51,3 +51,16 @@ html,body{
   scrollbar-width: thin;
   scrollbar-color: #16a34a #f4f4f5;
 }
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease;
+}

@@ -15,8 +15,10 @@ const useLogout = () => {
             if(response){
                 toast.success(response?.message)
                 localStorage.removeItem("token")
+                localStorage.removeItem("selectedAddressId")
                 dispatch(SetUser(null))
                 dispatch(logout())
+                 
                 resetAllApiCache()
                 navigate("/")
             }
