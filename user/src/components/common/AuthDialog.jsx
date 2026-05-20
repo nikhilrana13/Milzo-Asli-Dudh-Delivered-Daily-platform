@@ -20,7 +20,7 @@ const AuthDialog = ({ onClose }) => {
     const handleLoginWithGoogle = async () => {
         try {
             await signInWithPopup(auth, GoogleProvider)
-            const response = await api.post("/api/auth/google-login", {})
+            const response = await api.post("/api/auth/test-google", {})
             if (response) {
                 toast.success(response?.message)
                 // console.log("response",response?.data)

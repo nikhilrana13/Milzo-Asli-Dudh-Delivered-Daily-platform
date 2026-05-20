@@ -40,11 +40,13 @@ export const VendorsApi = createApi({
         }),
         // vendor all products
         FetchVendorProducts:builder.query({
-            query:(id)=>({
+            query:({vendorId, id, page, limit})=>({
                 url:`/api/vendor/products`,
                 method:"GET",
                 params:{
-                    vendorId:id
+                    vendorId: vendorId || id,
+                    page,
+                    limit,
                 }
             }),
             providesTags:["VendorsApi"]
