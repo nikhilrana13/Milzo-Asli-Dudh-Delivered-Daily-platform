@@ -79,6 +79,7 @@ const App = () => {
       {activeDialog === "auth" && (
         <AuthDialog onClose={() => { setActiveDialog(null) }} />
       )}
+      
       {/* select location dialog for global access */}
       <AnimatePresence mode='wait'>
         {activeDialog === "location" && (
