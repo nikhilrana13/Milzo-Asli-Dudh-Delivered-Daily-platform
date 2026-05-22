@@ -179,7 +179,7 @@ const CreateCampaign = async (req, res) => {
       return Response(res, 400,"Campaign already exists")
     }
     // create campaign
-    const campaign = Campaign.create({
+    const campaign = await Campaign.create({
       title,
       discountType,
       discountValue,
@@ -199,7 +199,7 @@ const CreateCampaign = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
-// get all campaigns 
+// get all for admin campaigns 
 const GetAllCampaigns = async(req,res)=>{
   try {
     const adminId = req.user;
@@ -209,7 +209,7 @@ const GetAllCampaigns = async(req,res)=>{
       return Response(res, 401, "Admin not found");
     }
     if (admin.role !== "admin") {
-      return Response(res, 400, "You are not authorized to create campaign");
+      return Response(res, 400, "You are not authorized to access this route");
     }
     const campaigns = await Campaign.find()
     if(campaigns.length === 0){
@@ -221,76 +221,16 @@ const GetAllCampaigns = async(req,res)=>{
     return Response(res, 500, "Internal server error");
   }
 }
-const ApplyOffer = async (req, res) => {
-  try {
-    const userId = req.user;
-    const {productId,vendorId,quantity,pricePerDay,startDate,endDate,campaignId} = req.body;
-
-    const user = await User.findById(userId)
-    if(!user){
-      return Response(res,403,"User not found")
-    }
-    // basic validation
-    if (!productId || !vendorId || !quantity || !pricePerDay || !endDate) {
-      return Response(res, 400, "Missing required fields");
-    }
-    const parsedQuantity = Number(quantity);
-    const parsedPrice = Number(pricePerDay);
-
-    if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
-      return Response(res, 400, "Invalid quantity");
-    }
-    if (isNaN(parsedPrice) || parsedPrice <= 0) {
-      return Response(res, 400, "Invalid price");
-    }
-    // date calculation
-    const start = startDate ? new Date(startDate) : new Date();
-    const end = new Date(endDate);
-
-    if (end <= start) {
-      return Response(res, 400, "Invalid date range");
-    }
-
-    const totalDays = Math.ceil(
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    const totalAmount = parsedPrice * parsedQuantity * totalDays;
-
-    // apply offer
-    let result;
-    try {
-      result = await calculateOffer({
-        userId,
-        campaignId,
-        totalAmount,
-      });
-    } catch (err) {
-      return Response(res, 400, err.message);
-    }
-    return Response(res, 200,"Offer applied successfully", {
-      totalAmount,
-      discountAmount: result.discountAmount,
-      finalAmount: result.finalAmount,
-      campaign: {
-        id: result.appliedCampaign,
-        title: result.campaign?.title,
-      },
-    });
-  } catch (error) {
-    console.error("Apply Offer error", error);
-    return Response(res, 500, "Internal server error");
-  }
-};
 const ToggleCampaignStatus = async (req, res) => {
   try {
     const adminId = req.user;
-    const { campaignId } = req.params.id;
+    const  campaignId  = req.params.id;
     const admin = await Admin.findById(adminId);
     if (!admin || admin.role !== "admin") {
       return Response(res, 403, "Forbidden");
     }
     const campaign = await Campaign.findById(campaignId);
+    // console.log("campaign",campaign)
     if (!campaign) {
       return Response(res, 404, "Campaign not found");
     }
@@ -305,4 +245,4 @@ const ToggleCampaignStatus = async (req, res) => {
   }
 };
 
-module.exports = { GetAllVendors, ApproveAndRejectVendor, CreateCampaign,GetAllCampaigns,ApplyOffer,ToggleCampaignStatus};
+module.exports = { GetAllVendors, ApproveAndRejectVendor, CreateCampaign,GetAllCampaigns,ToggleCampaignStatus};
