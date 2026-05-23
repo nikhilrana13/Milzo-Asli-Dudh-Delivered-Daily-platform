@@ -2,10 +2,13 @@ import { api } from "@/services/api";
 import React, { useEffect, useState } from "react";
 import { IoClose } from "react-icons/io5";
 import OfferCardShimmer from "./OfferCardShimmer";
+import useLockBodyScroll from "@/hooks/useLockBodyScroll";
 
 const ShowUserOffers = ({ setShowOffers, selectedCampaign,onApplyOffer}) => {
     const [LoadOffers, setLoadOffers] = useState(false);
     const [allOffers, setAllOffers] = useState([]);
+    useLockBodyScroll(true)
+
 
     // fetch all offers
     useEffect(() => {
