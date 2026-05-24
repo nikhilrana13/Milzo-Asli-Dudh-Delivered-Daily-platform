@@ -281,6 +281,7 @@ const StripeWebhookHandler = async (req, res) => {
                 productId: booking.productId,
                 quantity: booking.quantity,
                 unit: booking.unit,
+                selectedPriceOptionId: booking.selectedPriceOptionId,
                 pricePerDay: booking.pricePerDay,
                 totalDays: booking.totalDays,
                 totalAmount: booking.totalAmount,
