@@ -1,13 +1,12 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import BottomNav from '../common/BottomNav';
+import UserLayoutNavbar from '../common/UserLayoutNavbar';
 
 const UserLayout = () => {
   return (
     <>
-     <div className="sticky top-0 bg-white border px-4 py-3">
-        <h1 className="font-semibold text-lg">My Account</h1>
-      </div>
+      <UserLayoutNavbar />
       <main className='pb-16'>
         <Outlet />
       </main>

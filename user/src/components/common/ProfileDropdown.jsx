@@ -60,7 +60,7 @@ const ProfileDropdown = () => {
             <div className="py-2">
 
               <button
-                onClick={() => navigate("/profile")}
+                onClick={() => navigate("/myprofile")}
                 className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition text-sm"
               >
                  <MdPerson className="text-lg text-gray-600" />
