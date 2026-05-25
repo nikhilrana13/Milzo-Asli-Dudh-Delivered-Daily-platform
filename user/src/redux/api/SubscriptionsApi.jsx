@@ -8,7 +8,10 @@ export const SubscriptionsApi = createApi({
     endpoints: (builder) => ({
         // find user subscriptions
         getMySubscriptions: builder.query({
-            query: () => "/api/subscriptions/my",
+            query: ({ page, limit }) => ({
+                url: "/api/subscriptions/my",
+                params: { page, limit },
+            }),
             providesTags: ["SubscriptionsApi"],
         }),
     }),

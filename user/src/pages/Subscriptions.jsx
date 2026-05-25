@@ -1,43 +1,115 @@
 import EmptySubscriptions from '@/components/subscription/EmptySubscriptions';
 import SubscriptionCard from '@/components/subscription/SubscriptionCard';
 import SubscriptionCardShimmer from '@/components/subscription/SubscriptionCardShimmer';
+import SubsisErrorState from '@/components/subscription/SubsisErrorState';
 import { useGetMySubscriptionsQuery } from '@/redux/api/SubscriptionsApi';
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 
 
 const Subscriptions = () => {
-  const SubsQuery = useGetMySubscriptionsQuery()
-  const mysubs = SubsQuery?.data?.data?.subscriptions || []
+  const [page, setPage] = useState(1)
+  const SubsQuery = useGetMySubscriptionsQuery({
+    page: page,
+    limit: 6,
+  })
+  const mysubs = SubsQuery?.data?.data?.subscriptions ?? []
+  const loaderRef = useRef(null)
+  const pagination = SubsQuery?.data?.data?.pagination ?? {}
+  const [allSubs, setAllSubs] = useState([])
+  // prevent multiple observer triggers
+  const fetchingRef = useRef(false)
 
-
+  // sync fetching state with ref
+  useEffect(() => {
+  fetchingRef.current = SubsQuery.isFetching
+}, [SubsQuery.isFetching])
+  // append new subscriptions while avoiding duplicates
+    useEffect(() => {
+      if (page === 1) {
+        setAllSubs(mysubs || [])
+        return
+      }
+       // append unique subscriptions for next pages
+      if (mysubs?.length > 0) {
+        setAllSubs((prev) => {
+          const existingIds = new Set(prev.map((s) => s._id))
+          const newSubs = mysubs?.filter(
+            (s) => !existingIds.has(s._id)
+          )
+          return [...prev, ...newSubs]
+        })
+      }
+    }, [mysubs, page])
+    const isFetchingMore = SubsQuery?.isFetching && page > 1
+    // infinite scroll intersection observer
+    useEffect(() => {
+      // stop observer if: loader missing loading error  no subscriptions
+      if (!loaderRef.current || SubsQuery?.isLoading || SubsQuery?.isError || allSubs.length === 0 ) return
+      const observer = new IntersectionObserver((entries) => {
+        const first = entries[0]
+        if (first.isIntersecting && pagination?.currentPage < pagination?.totalPages && !SubsQuery.isFetching && !fetchingRef.current) {
+             // lock fetching
+          fetchingRef.current = true;
+          //  console.log("Current Page:", pagination?.currentPage);
+        //  console.log("Loading Next Page:",pagination?.currentPage + 1);
+          setPage((prev) => prev + 1)
+        }
+      },
+        {
+          threshold: 0.3,
+          rootMargin: "100px"
+        })
+      const currentLoader = loaderRef.current
+      if (currentLoader) {
+        observer.observe(currentLoader)
+      }
+      return () => {
+        if (currentLoader) {
+          observer.unobserve(currentLoader)
+        }
+      }
+    }, [pagination?.currentPage, pagination?.totalPages, SubsQuery?.isLoading, SubsQuery?.isError, allSubs?.length])
+  const isInitialLoading = SubsQuery?.isLoading && page === 1 && allSubs?.length === 0
   // console.log("mysubs",mysubs)
   return (
     <div className="w-full max-w-7xl  py-5 mx-auto px-5 sm:px-6">
       {
-        SubsQuery?.isLoading ? (
+        isInitialLoading ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {[1,2,3,4].map((_,i)=>{
+            {[1, 2, 3, 4].map((_, i) => {
               return (
                 <SubscriptionCardShimmer key={i} />
               )
             })}
           </div>
-        ):mysubs?.length > 0 ? (
+        ) : SubsQuery?.isError ? (
+          <SubsisErrorState onIsError={()=>SubsQuery?.refetch()} />
+        ):allSubs?.length > 0 ? (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {mysubs?.map((sub)=>{
+            {allSubs?.map((sub) => {
               return (
-                <SubscriptionCard key={sub?._id} subscription={sub}  />
+                <SubscriptionCard key={sub?._id} subscription={sub} />
               )
             })}
           </div>
-        ):(
+        ) : (
           <div className="flex items-center justify-center">
-              <EmptySubscriptions />
+            <EmptySubscriptions />
           </div>
         )
       }
+      {/* infinite scroll loader */}
+      {allSubs?.length > 0 && (
+        <div ref={loaderRef} className="h-20 flex items-center justify-center">
+          {isFetchingMore &&
+            pagination?.currentPage < pagination?.totalPages && (
+              <div className="h-10 w-10 rounded-full border-4 border-[#dcfce7] border-t-[#16a34a] animate-spin" />
+            )}
+        </div>
+      )}
     </div>
   );
 }
 
 export default Subscriptions;
+
