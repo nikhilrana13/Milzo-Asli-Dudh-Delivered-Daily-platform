@@ -71,6 +71,7 @@ const Subscriptions = () => {
     }, [pagination?.currentPage, pagination?.totalPages, SubsQuery?.isLoading, SubsQuery?.isError, allSubs?.length])
   const isInitialLoading = SubsQuery?.isLoading && page === 1 && allSubs?.length === 0
   // console.log("mysubs",mysubs)
+
   return (
     <div className="w-full max-w-7xl  py-5 mx-auto px-5 sm:px-6">
       {

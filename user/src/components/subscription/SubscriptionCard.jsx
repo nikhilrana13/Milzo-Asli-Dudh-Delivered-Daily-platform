@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
     MdPause,
@@ -9,13 +9,35 @@ import {
     MdVerified
 } from 'react-icons/md'
 import { formatIndianNumber } from '@/utils/Helpers'
+import { useUpdatePauseAndActiveSubsMutation } from '@/redux/api/SubscriptionsApi'
+import { toast } from 'react-toastify'
 
-const SubscriptionCard = ({ subscription, onPause, onResume }) => {
-    const isPaused = subscription?.status === 'paused'
+const SubscriptionCard = ({ subscription }) => {
+    const [selectedstatus, setSelectedStatus] = useState(subscription?.status)
+    const isPaused = selectedstatus === 'paused'
     const product = subscription?.productId
     const vendor = subscription?.vendorId
     const image = product?.images?.[0]?.url
     const deliveryAddress = subscription?.deliveryAddress
+
+    const [UpdatePauseAndActiveSubs, { isLoading }] = useUpdatePauseAndActiveSubsMutation()
+    // handle pause and active subscription 
+    const handlePauseAndActiveSubs = async (status) => {
+        try {
+            setSelectedStatus(status)
+            const response = await UpdatePauseAndActiveSubs({
+                id: subscription?._id,
+                status: status
+            }).unwrap()
+            toast.success(response?.message)
+        } catch (error) {
+            console.error("Failed to pause and active subscription", error)
+            // rollback ui
+            setSelectedStatus(subscription?.status)
+            return toast.error(error?.data?.message || "Internal server error")
+        }
+    }
+
 
     return (
         <motion.div
@@ -162,22 +184,21 @@ const SubscriptionCard = ({ subscription, onPause, onResume }) => {
                     </div>
 
                 </div>
-
                 {/* footer */}
                 <div className="flex flex-col sm:flex-row gap-3">
 
                     {!isPaused ? (
-                        <button onClick={onPause} className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r  from-orange-500 to-orange-400 text-white font-semibold shadow-lg shadow-orange-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                        <button disabled={isLoading} onClick={() => handlePauseAndActiveSubs("paused")} className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r  from-orange-500 to-orange-400 text-white font-semibold shadow-lg shadow-orange-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
                         >
                             <MdPause className="text-lg" />
-                            Pause Subscription
+                            {isLoading ? "Updating..." : "Pause Subscription"}
                         </button>
 
                     ) : (
-                        <button onClick={onResume} className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white  font-semibold shadow-lg shadow-[#22c55e]/20
+                        <button disabled={isLoading} onClick={() => handlePauseAndActiveSubs("active")} className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white  font-semibold shadow-lg shadow-[#22c55e]/20
                             hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
                             <MdPlayArrow className="text-lg" />
-                            Resume Subscription
+                            {isLoading ? "Updating..." : "Resume Subscription"}
                         </button>
                     )}
                 </div>

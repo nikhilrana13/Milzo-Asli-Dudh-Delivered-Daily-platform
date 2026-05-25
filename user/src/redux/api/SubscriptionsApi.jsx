@@ -14,8 +14,19 @@ export const SubscriptionsApi = createApi({
             }),
             providesTags: ["SubscriptionsApi"],
         }),
+        // pause and active subscription 
+        UpdatePauseAndActiveSubs:builder.mutation({
+            query:({id,status})=>({
+                url:`/api/subscriptions/${id}/pause-or-active`,
+                method:"PATCH",
+                body:{
+                    status
+                }
+            }),
+             invalidatesTags:["SubscriptionsApi"]
+        })
     }),
 });
 
-export const { useGetMySubscriptionsQuery } = SubscriptionsApi;
+export const { useGetMySubscriptionsQuery,useUpdatePauseAndActiveSubsMutation} = SubscriptionsApi;
 
