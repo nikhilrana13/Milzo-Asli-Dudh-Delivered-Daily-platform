@@ -48,7 +48,7 @@ const Subscriptions = () => {
       const observer = new IntersectionObserver((entries) => {
         const first = entries[0]
         if (first.isIntersecting && pagination?.currentPage < pagination?.totalPages && !SubsQuery.isFetching && !fetchingRef.current) {
-             // lock fetching
+             // lock fetching to prevent multiple triggers
           fetchingRef.current = true;
           //  console.log("Current Page:", pagination?.currentPage);
         //  console.log("Loading Next Page:",pagination?.currentPage + 1);
