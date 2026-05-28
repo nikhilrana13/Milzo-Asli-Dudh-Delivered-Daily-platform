@@ -12,7 +12,6 @@ const Navbar = () => {
   const user = useSelector((state) => state.Auth.user)
   const {selectedLocation} = useUserLocation()
   // console.log("location",selectedLocation)
-  // console.log("user in navbar", user)
   // console.log("selectedLocation", selectedLocation)
   
   const navlinkClass = (path) => {
