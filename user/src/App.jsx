@@ -16,10 +16,13 @@ import { AnimatePresence } from 'framer-motion';
 import { resetAllApiCache } from './utils/resetApiCache';
 import { useUserLocation } from './context/LocationContext';
 import LocationProtectedRoute from './middleware/LocationProtectedRoute';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentFailed from './pages/PaymentFailed';
+import ErrorBoundary from './components/common/ErrorBoundary';
 
 const App = () => {
-  const { activeDialog, setActiveDialog, setDialogStep,} = useDialog()
-  const {selectedLocation} = useUserLocation()
+  const { activeDialog, setActiveDialog, setDialogStep, } = useDialog()
+  const { selectedLocation } = useUserLocation()
   const navigate = useNavigate()
 
 
@@ -52,44 +55,50 @@ const App = () => {
     }, 3000);
     return () => clearTimeout(timer);
   }, [activeDialog, setActiveDialog]);
-  
+
 
   return (
     <>
-      <div className='w-full'>
-        {/* routes */}
-        <Routes>
-          {/* public route */}
-          <Route element={<PublicLayout />}>
-            <Route path="/" element={<Home />} />
-            <Route path='/vendors' element={<LocationProtectedRoute><Vendors /></LocationProtectedRoute>} />
-            <Route path='/vendor/:id/:slug' element={<VendorDetails />} />
-          </Route>
-          {/* user pages */}
-          <Route element={<UserLayout />}>
-            <Route path='/subscriptions' element={<Subscriptions />} />
-            <Route path='/bookings' element={<Bookings />} />
-            <Route path='/myprofile' element={<Profile />} />
-          </Route>
+      <ErrorBoundary>
+        <div className='w-full'>
+          {/* routes */}
+          <Routes>
+            {/* public route */}
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<Home />} />
+              <Route path='/vendors' element={<LocationProtectedRoute><Vendors /></LocationProtectedRoute>} />
+              <Route path='/vendor/:id/:slug' element={<VendorDetails />} />
+            </Route>
+            {/* user pages */}
+            <Route element={<UserLayout />}>
+              <Route path='/subscriptions' element={<Subscriptions />} />
+              <Route path='/bookings' element={<Bookings />} />
+              <Route path='/myprofile' element={<Profile />} />
+              {/* payments */}
+              <Route path="/payment-success" element={<PaymentSuccess />} />
+              <Route path="/payment-failed" element={<PaymentFailed />} />
+            </Route>
 
-        </Routes>
-        <ToastContainer position="top-right" autoClose={3000} style={{ zIndex: 200000 }} />
-      </div>
-      {/* auth dialog for globel access */}
-      {activeDialog === "auth" && (
-        <AuthDialog onClose={() => { setActiveDialog(null) }} />
-      )}
-      
-      {/* select location dialog for global access */}
-      <AnimatePresence mode='wait'>
-        {activeDialog === "location" && (
-          <LocationSelectDialog key="location-dialog" onClose={() => { 
-            if(!selectedLocation.city){
-              navigate("/")
-            }
-            setActiveDialog(null); setDialogStep(1) }} />
+          </Routes>
+          <ToastContainer position="top-right" autoClose={3000} style={{ zIndex: 200000 }} />
+        </div>
+        {/* auth dialog for globel access */}
+        {activeDialog === "auth" && (
+          <AuthDialog onClose={() => { setActiveDialog(null) }} />
         )}
-      </AnimatePresence>
+        {/* select location dialog for global access */}
+        <AnimatePresence mode='wait'>
+          {activeDialog === "location" && (
+            <LocationSelectDialog key="location-dialog" onClose={() => {
+              if (!selectedLocation.city) {
+                navigate("/")
+              }
+              setActiveDialog(null); setDialogStep(1)
+            }} />
+          )}
+        </AnimatePresence>
+      </ErrorBoundary>
+
     </>
   );
 }

@@ -12,6 +12,7 @@ import MobileBottomBar from "./MobileBottomBar";
 import SubscriptionMobile from "./SubscriptionMobile";
 
 const SubscriptionSummary = ({ selectProductData, selectedPriceOption }) => {
+    const [loading,setLoading] = useState(false)
     const user = useSelector((state) => state.Auth.user);
     const [selectedDeliveryTimings, setSelectedDeliveryTimings] = useState({
         slot: "morning",
@@ -140,11 +141,25 @@ const SubscriptionSummary = ({ selectProductData, selectedPriceOption }) => {
             deliveryAddress: selectedAddress,
             campaignId: selectedCampaign,
         };
-        // for(let key in payload){
-        //     console.log(key,payload[key])
-        // }
+        for(let key in payload){
+            console.log(key,payload[key])
+        }
         try {
-        } catch (error) { }
+           setLoading(true)
+            const response = await api.post("/api/booking/create-booking",payload) 
+            if(response){
+                toast.success(response?.data?.message)
+                const url = response?.data?.url
+                if(url){
+                window.location.href = url;
+                }
+            }
+        } catch (error) {
+            console.error("failed to create subscription",error)
+            return toast.error(error?.response?.data?.message || 'Internal server error')
+        }finally{
+          setLoading(false)
+        }
     };
 
     const subscriptionProps = {
@@ -162,6 +177,7 @@ const SubscriptionSummary = ({ selectProductData, selectedPriceOption }) => {
         selectedCampaign,
         onHandleShowOffers: handleShowOffers,
         handleCreateSubscriptionBooking,
+        loading,
         dailyAmount: pricing?.dailyAmount,
         totalDays: pricing?.totalDays,
         subtotalAmount,

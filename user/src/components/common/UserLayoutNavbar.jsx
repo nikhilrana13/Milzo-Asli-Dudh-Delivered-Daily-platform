@@ -25,7 +25,10 @@ const UserLayoutNavbar = () => {
             subtitle: "Manage your active subscriptions",
         },
     };
-    const currentPage = pageInfo[location.pathname] || pageInfo["/account/profile"];
+    const currentPage = pageInfo[location.pathname] || {
+        title: "Milzo",
+        subtitle: "Fresh dairy delivered daily",
+    };;
 
 
 

@@ -3,7 +3,7 @@ import SelectedAddressCard from './SelectedAddressCard';
 import SubscriptionPricing from './SubscriptionPricing';
 import { useDialog } from '@/context/DialogContext';
 
-const SubscriptionDesktop = ({selectedAddress,selectedDeliveryTimings,setSelectedDeliveryTimings,minTime,maxTime,selectProductData,selectedPriceOption,startDate,setStartDate,endDate,setEndDate,selectedCampaign,onHandleShowOffers,handleCreateSubscriptionBooking,dailyAmount,totalDays,subtotalAmount,discountAmount,finalAmount,todayDate}) => {
+const SubscriptionDesktop = ({selectedAddress,selectedDeliveryTimings,setSelectedDeliveryTimings,minTime,maxTime,selectProductData,selectedPriceOption,startDate,setStartDate,endDate,setEndDate,selectedCampaign,onHandleShowOffers,handleCreateSubscriptionBooking,dailyAmount,totalDays,subtotalAmount,discountAmount,finalAmount,todayDate,loading}) => {
     const {setActiveDialog} = useDialog()
   return (
     <aside className="sticky lg:block hidden top-28 self-start">
@@ -173,10 +173,12 @@ const SubscriptionDesktop = ({selectedAddress,selectedDeliveryTimings,setSelecte
                     {/* button */}
                     <button
                         onClick={handleCreateSubscriptionBooking}
+                        disabled={loading}
                         className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white
                     font-bold text-lg shadow-xl shadow-[#22c55e]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                     >
-                        Proceed to Subscribe
+                        {loading ? "Please Wait...":" Proceed to Subscribe"}
+                       
                     </button>
                     <p className="text-[10px] text-center text-gray-500 mt-4 font-semibold uppercase tracking-[0.18em]">
                         No long term commitment. Pause anytime.

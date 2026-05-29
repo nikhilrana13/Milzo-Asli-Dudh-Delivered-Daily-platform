@@ -4,7 +4,7 @@ import SelectedAddressCard from './SelectedAddressCard';
 import { IoClose } from 'react-icons/io5';
 import SubscriptionPricing from './SubscriptionPricing';
 
-const SubscriptionMobile = ({setShowMobileSummary,selectedAddress,selectedDeliveryTimings,setSelectedDeliveryTimings,minTime,maxTime,selectProductData,selectedPriceOption,startDate,setStartDate,endDate,setEndDate,selectedCampaign,onHandleShowOffers,handleCreateSubscriptionBooking,dailyAmount,totalDays,subtotalAmount,discountAmount,finalAmount,todayDate}) => {
+const SubscriptionMobile = ({setShowMobileSummary,selectedAddress,selectedDeliveryTimings,setSelectedDeliveryTimings,minTime,maxTime,selectProductData,selectedPriceOption,startDate,setStartDate,endDate,setEndDate,selectedCampaign,onHandleShowOffers,handleCreateSubscriptionBooking,dailyAmount,totalDays,subtotalAmount,discountAmount,finalAmount,todayDatem,loading}) => {
     const {setActiveDialog} = useDialog()
   return (
     <div className="fixed inset-0 z-[70] bg-black/40 pb-28 lg:hidden">
@@ -169,10 +169,11 @@ const SubscriptionMobile = ({setShowMobileSummary,selectedAddress,selectedDelive
                         {/* button */}
                         <button
                             onClick={handleCreateSubscriptionBooking}
+                            disabled={loading}
                             className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white
                     font-bold text-lg shadow-xl shadow-[#22c55e]/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                         >
-                            Proceed to Subscribe
+                         {loading ? "Please Wait...":" Proceed to Subscribe"}
                         </button>
                         <p className="text-[10px] text-center text-gray-500 mt-4 font-semibold uppercase tracking-[0.18em]">
                             No long term commitment. Pause anytime.

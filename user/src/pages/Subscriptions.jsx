@@ -11,7 +11,10 @@ const Subscriptions = () => {
   const SubsQuery = useGetMySubscriptionsQuery({
     page: page,
     limit: 6,
-  })
+  },{
+    refetchOnMountOrArgChange: true,
+  }
+)
   const mysubs = SubsQuery?.data?.data?.subscriptions ?? []
   const loaderRef = useRef(null)
   const pagination = SubsQuery?.data?.data?.pagination ?? {}
