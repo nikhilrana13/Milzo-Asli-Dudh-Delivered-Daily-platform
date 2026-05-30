@@ -4,7 +4,7 @@ import SelectedAddressCard from './SelectedAddressCard';
 import { IoClose } from 'react-icons/io5';
 import SubscriptionPricing from './SubscriptionPricing';
 
-const SubscriptionMobile = ({setShowMobileSummary,selectedAddress,selectedDeliveryTimings,setSelectedDeliveryTimings,minTime,maxTime,selectProductData,selectedPriceOption,startDate,setStartDate,endDate,setEndDate,selectedCampaign,onHandleShowOffers,handleCreateSubscriptionBooking,dailyAmount,totalDays,subtotalAmount,discountAmount,finalAmount,todayDatem,loading}) => {
+const SubscriptionMobile = ({setShowMobileSummary,selectedAddress,selectedDeliveryTimings,setSelectedDeliveryTimings,minTime,maxTime,selectProductData,selectedPriceOption,startDate,setStartDate,endDate,setEndDate,selectedCampaign,onHandleShowOffers,handleCreateSubscriptionBooking,dailyAmount,totalDays,subtotalAmount,discountAmount,finalAmount,todayDate,loading}) => {
     const {setActiveDialog} = useDialog()
   return (
     <div className="fixed inset-0 z-[70] bg-black/40 pb-28 lg:hidden">

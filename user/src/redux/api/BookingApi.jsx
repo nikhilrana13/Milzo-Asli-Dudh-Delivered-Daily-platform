@@ -14,7 +14,14 @@ export const BookingApi = createApi({
                 method: "GET",
             }),
         }),
+        // get user all bookings 
+        GetUserAllBookings:builder.query({
+            query:({page,limit}) => ({
+                url: "/api/bookings/user",
+                params: { page, limit },
+            })
+        })
      }),
 })
 
-export const { useGetBookingDetailsQuery } = BookingApi
+export const { useGetBookingDetailsQuery,useGetUserAllBookingsQuery} = BookingApi
