@@ -11,7 +11,7 @@ const Navbar = () => {
   const {setActiveDialog} = useDialog()
   const user = useSelector((state) => state.Auth.user)
   const {selectedLocation} = useUserLocation()
-  // console.log("location",selectedLocation)
+  console.log("location",selectedLocation)
   // console.log("selectedLocation", selectedLocation)
   
   const navlinkClass = (path) => {
