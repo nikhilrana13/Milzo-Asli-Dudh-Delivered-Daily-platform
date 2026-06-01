@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
     MdPause,
@@ -14,13 +14,18 @@ import { toast } from 'react-toastify'
 
 const SubscriptionCard = ({ subscription }) => {
     const [selectedstatus, setSelectedStatus] = useState(subscription?.status)
-    const isPaused = selectedstatus === 'paused'
     const product = subscription?.productId
+    const isPaused = selectedstatus === "paused";
     const vendor = subscription?.vendorId
     const image = product?.images?.[0]?.url
     const deliveryAddress = subscription?.deliveryAddress
-
+    const canManageSubscription = ["active", "paused"].includes(selectedstatus);
     const [UpdatePauseAndActiveSubs, { isLoading }] = useUpdatePauseAndActiveSubsMutation()
+    // sync local status with latest subscription status from RTK Query
+   // keeps optimistic UI updates and server state in sync
+    useEffect(() => {
+    setSelectedStatus(subscription?.status)
+}, [subscription?.status])
     // handle pause and active subscription 
     const handlePauseAndActiveSubs = async (status) => {
         try {
@@ -79,9 +84,14 @@ const SubscriptionCard = ({ subscription }) => {
                             </div>
                             <div className="flex items-center gap-2 mt-2">
                                 <span className={`px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide
-                               ${isPaused ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"}`}
+                                ${selectedstatus === "completed"
+                                        ? "bg-blue-100 text-blue-700"
+                                        : selectedstatus === "paused" ? "bg-orange-100 text-orange-700"
+                                            : selectedstatus === "cancelled" ? "bg-red-100 text-red-700" :
+                                                selectedstatus === "active" ? "bg-green-100 text-green-700" : ""
+                                    }`}
                                 >
-                                    {isPaused ? "Paused" : "Running"}
+                                    {selectedstatus}
                                 </span>
                             </div>
                         </div>
@@ -185,23 +195,28 @@ const SubscriptionCard = ({ subscription }) => {
 
                 </div>
                 {/* footer */}
-                <div className="flex flex-col sm:flex-row gap-3">
+                {
+                    canManageSubscription && (
+                        <div className="flex flex-col sm:flex-row gap-3">
 
-                    {!isPaused ? (
-                        <button disabled={isLoading} onClick={() => handlePauseAndActiveSubs("paused")} className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r  from-orange-500 to-orange-400 text-white font-semibold shadow-lg shadow-orange-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
-                        >
-                            <MdPause className="text-lg" />
-                            {isLoading ? "Updating..." : "Pause Subscription"}
-                        </button>
+                            {!isPaused ? (
+                                <button disabled={isLoading} onClick={() => handlePauseAndActiveSubs("paused")} className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r  from-orange-500 to-orange-400 text-white font-semibold shadow-lg shadow-orange-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+                                >
+                                    <MdPause className="text-lg" />
+                                    {isLoading ? "Updating..." : "Pause Subscription"}
+                                </button>
 
-                    ) : (
-                        <button disabled={isLoading} onClick={() => handlePauseAndActiveSubs("active")} className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white  font-semibold shadow-lg shadow-[#22c55e]/20
+                            ) : (
+                                <button disabled={isLoading} onClick={() => handlePauseAndActiveSubs("active")} className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-[#16a34a] to-[#22c55e] text-white  font-semibold shadow-lg shadow-[#22c55e]/20
                             hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
-                            <MdPlayArrow className="text-lg" />
-                            {isLoading ? "Updating..." : "Resume Subscription"}
-                        </button>
-                    )}
-                </div>
+                                    <MdPlayArrow className="text-lg" />
+                                    {isLoading ? "Updating..." : "Resume Subscription"}
+                                </button>
+                            )}
+                        </div>
+                    )
+                }
+
             </div>
         </motion.div>
 

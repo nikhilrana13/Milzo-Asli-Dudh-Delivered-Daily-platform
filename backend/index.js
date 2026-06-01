@@ -13,6 +13,7 @@ const WebhookRoute = require("./routes/stripewebhookroute")
 const BookingRoute = require("./routes/bookingroutes")
 const SubscriptionRoute = require("./routes/subscriptionroutes")
 const ReviewRoute = require("./routes/reviewroutes")
+const SubscriptionStatusUpdater = require("./jobs/subscriptionstatusupdater")
 
 dotenv.config()
 
@@ -51,5 +52,6 @@ configure()
 // })
 app.listen(PORT,()=>{
     console.log(`server is running on ${PORT}`)
+    SubscriptionStatusUpdater()
 })
 
