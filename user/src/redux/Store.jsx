@@ -7,6 +7,7 @@ import { UserSavedAddressesApi } from "./api/UsersavedAddressesApi";
 import { VendorsApi } from "./api/VendorsApi";
 import { SubscriptionsApi } from "./api/SubscriptionsApi";
 import { BookingApi } from "./api/BookingApi";
+import { UserApi } from "./api/UserApi";
 
 
 const userpersistconfig={
@@ -20,10 +21,11 @@ const rootReducer = combineReducers({
     [UserSavedAddressesApi.reducerPath]: UserSavedAddressesApi.reducer,
     [VendorsApi.reducerPath]:VendorsApi.reducer,
     [SubscriptionsApi.reducerPath]: SubscriptionsApi.reducer,
-    [BookingApi.reducerPath]: BookingApi.reducer
+    [BookingApi.reducerPath]: BookingApi.reducer,
+    [UserApi.reducerPath]: UserApi.reducer
 })
 export const Store = configureStore({
     reducer:rootReducer,
-    middleware:(getDefaultMiddleware)=>getDefaultMiddleware({serializableCheck:false}).concat(UserSavedAddressesApi.middleware).concat(VendorsApi.middleware).concat(SubscriptionsApi.middleware).concat(BookingApi.middleware)
+    middleware:(getDefaultMiddleware)=>getDefaultMiddleware({serializableCheck:false}).concat(UserSavedAddressesApi.middleware).concat(VendorsApi.middleware).concat(SubscriptionsApi.middleware).concat(BookingApi.middleware).concat(UserApi.middleware)
 })
 export const Persistor = persistStore(Store)

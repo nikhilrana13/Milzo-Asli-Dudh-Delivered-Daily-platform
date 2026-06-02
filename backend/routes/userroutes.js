@@ -3,7 +3,7 @@ const router = express.Router()
 const multer = require("multer")
 const AuthMiddleware = require("../middlewares/authmiddleware")
 const IsUser = require("../middlewares/isuser")
-const { UpdateUserProfile, AddnewAddress, UpdateAddress, GetUserAddresses, DeleteAddress, AddAddressFromCoords } = require("../controllers/usercontroller")
+const { UpdateUserProfile, AddnewAddress, UpdateAddress, GetUserAddresses, DeleteAddress, AddAddressFromCoords, GetUserProfile } = require("../controllers/usercontroller")
 const FileFilter = require("../utils/multervalidation")
 const { GetAllCampaignsForUser, ApplyOffer } = require("../controllers/campaigncontroller")
 //multer config
@@ -13,6 +13,7 @@ const upload = multer({storage,limits:{
 },fileFilter:FileFilter})
 
 
+router.get("/myprofile",AuthMiddleware,IsUser,GetUserProfile)
 router.put("/update-profile",AuthMiddleware,IsUser,upload.single("profilePic"),UpdateUserProfile)
 router.put("/add-address", AuthMiddleware, IsUser, AddnewAddress)
 router.put("/update-address",AuthMiddleware,IsUser,UpdateAddress)

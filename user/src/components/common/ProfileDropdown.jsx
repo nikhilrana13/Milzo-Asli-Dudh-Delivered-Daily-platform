@@ -25,7 +25,7 @@ const ProfileDropdown = () => {
   }, []);
 
   const getInitial = () => {
-    return user?.name?.charAt(0)?.toUpperCase() || "U";
+    return user?.username?.charAt(0)?.toUpperCase() || "U";
   };
 
   return (

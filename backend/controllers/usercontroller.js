@@ -2,6 +2,24 @@ const User = require("../models/usermodel");
 const Response = require("../utils/responsehandler");
 const { deleteFromImageKit, uploadToImageKit } = require("../utils/upload");
 
+// get user profile
+const GetUserProfile = async (req, res) => {
+  try {
+    const userId = req.user;
+    //check user exists or not
+    const user = await User.findById(userId);
+    if (!user) {
+      return Response(res, 401, "User not found");
+    }
+    if (user.role !== "user") {
+      return Response(res, 401, "You are not authorized to access this route");
+    }
+    return Response(res,200,"Profile fetch successfully",{user})
+  } catch (error) {
+    console.error("failed to get user profile",error)
+     return Response(res, 500, "Internal server error");
+  }
+};
 
 // update user profile
 const UpdateUserProfile = async (req, res) => {
@@ -81,7 +99,7 @@ const AddnewAddress = async (req, res) => {
       return Response(res, 400, "Address is required and must be object");
     }
     const { label, addressLine, city, state, pincode, lat, lng } = newaddress;
-     if (!label) {
+    if (!label) {
       return Response(res, 400, "Label is required");
     }
     // check user
@@ -93,14 +111,15 @@ const AddnewAddress = async (req, res) => {
       return Response(res, 400, "Max 5 addresses allowed");
     }
     // check if address already exists
-     let addressData = {
+    let addressData = {
       label: label.trim().toLowerCase(),
       addressLine: addressLine ? addressLine.trim().toLowerCase() : "",
       city: city.trim().toLowerCase(),
       state: state.trim().toLowerCase(),
       pincode: pincode.trim(),
     };
-    const alreadyExists = user.addresses.find((addr) =>
+    const alreadyExists = user.addresses.find(
+      (addr) =>
         addr.pincode === addressData.pincode && addr.city === addressData.city,
     );
     if (alreadyExists) {
@@ -117,12 +136,7 @@ const AddnewAddress = async (req, res) => {
     addressData.pincode = pincode.trim();
     // optional
     // geo location
-    if (
-      lat !== undefined &&
-      lng !== undefined &&
-      !isNaN(lat) &&
-      !isNaN(lng)
-    ) {
+    if (lat !== undefined && lng !== undefined && !isNaN(lat) && !isNaN(lng)) {
       addressData.location = {
         type: "Point",
         coordinates: [parseFloat(lng), parseFloat(lat)],
@@ -254,6 +268,5 @@ module.exports = {
   UpdateAddress,
   GetUserAddresses,
   DeleteAddress,
-}; 
-
-
+  GetUserProfile
+};
