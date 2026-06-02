@@ -8,6 +8,7 @@ import ProfileShimmer from '@/components/profile/ProfileShimmer';
 import ProfileErrorState from '@/components/profile/ProfileErrorState';
 import { useDispatch } from 'react-redux';
 import { SetUser } from '@/redux/AuthSlice';
+import fallbackuser from '../assets/fallbackuser.png'
 
 
 const Profile = () => {
@@ -18,7 +19,9 @@ const Profile = () => {
       secondPhoneNumber: "",
     }
   })
-  const userQuery = useGetUserProfileQuery()
+  const userQuery = useGetUserProfileQuery(undefined, {
+    refetchOnMountOrArgChange: true
+  })
   const user = userQuery?.data?.data?.user
   const [preview, setPreview] = useState(null);
   const [selectedProfilePic, setSelectedProfilePic] = useState(null)
@@ -31,9 +34,11 @@ const Profile = () => {
       setValue("username", user.username || "")
       setValue("phoneNumber", user.phoneNumber)
       setValue("secondPhoneNumber", user.secondPhoneNumber || "")
-      setSelectedProfilePic(user?.profilePic?.url || null);
+      if (!preview) {
+        setSelectedProfilePic(user?.profilePic?.url || null);
+      }
     }
-  }, [user, setValue])
+  }, [user, setValue, preview])
 
   // handle image handle 
   const handleProfilePic = (e) => {
@@ -69,6 +74,7 @@ const Profile = () => {
     }
   }
 
+
   return (
     <>
       {userQuery?.isLoading ? (
@@ -95,9 +101,12 @@ const Profile = () => {
                 {/* Avatar */}
                 <div className="relative">
                   <img
+                    onError={(e) => {
+                      e.currentTarget.src = fallbackuser
+                    }}
+                    // onLoad={() => console.log("Image loaded")}
                     src={
-                      preview || user?.profilePic?.url ||
-                      "https://ui-avatars.com/api/?name=User&background=ffffff&color=047857&size=200"
+                      preview || user?.profilePic?.url || fallbackuser
                     }
                     alt="profile"
                     className="h-28 w-28 sm:h-32 sm:w-32 rounded-full border-4 border-white object-cover shadow-2xl"

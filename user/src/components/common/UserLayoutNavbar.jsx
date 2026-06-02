@@ -69,7 +69,7 @@ const UserLayoutNavbar = () => {
 
                 {/* Avatar */}
                 <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#047857] text-sm font-semibold text-white shadow-md">
-                    {user?.name?.charAt(0)?.toUpperCase() || "U"}
+                    {user?.username?.charAt(0)?.toUpperCase() || "U"}
                 </div>
             </nav>
         </header>
