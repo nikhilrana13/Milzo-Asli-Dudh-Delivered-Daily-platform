@@ -1,8 +1,7 @@
-import { GetLastUpdatedText } from "@/utils/Helpers";
 import { motion } from "framer-motion";
 import { MdRefresh, MdWavingHand } from "react-icons/md";
 
-const WelcomeHeader = ({ username, onRefresh, isRefreshing,lastUpdated}) => {
+const WelcomeHeader = ({ username, onRefresh, isRefreshing, lastUpdated }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -28,7 +27,10 @@ const WelcomeHeader = ({ username, onRefresh, isRefreshing,lastUpdated}) => {
             Milzo Admin Dashboard
           </div>
           <div className="text-xs sm:text-sm bg-white/15 backdrop-blur-md px-4 py-1.5 rounded-full">
-           {GetLastUpdatedText(lastUpdated)}
+           Updated at: {lastUpdated.toLocaleTimeString([], {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </div>
           {/* * Manual refresh for dashboard stats until real-time updates are implemented */}
           <button
