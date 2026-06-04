@@ -1,7 +1,8 @@
+import { GetLastUpdatedText } from "@/utils/Helpers";
 import { motion } from "framer-motion";
-import { MdWavingHand } from "react-icons/md";
+import { MdRefresh, MdWavingHand } from "react-icons/md";
 
-const WelcomeHeader = ({ username }) => {
+const WelcomeHeader = ({ username, onRefresh, isRefreshing,lastUpdated}) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -19,11 +20,29 @@ const WelcomeHeader = ({ username }) => {
             <MdWavingHand className="text-yellow-300 text-2xl animate-pulse" />
           </h1>
           <p className="text-sm sm:text-base text-white/80 mt-1">
-             Manage Milzo Operations  
+            Manage Milzo Operations
           </p>
         </div>
-        <div className="text-xs sm:text-sm bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full font-medium">
-          Milzo Admin Dashboard
+        <div className="flex items-center gap-3 flex-wrap">
+          <div className="text-xs sm:text-sm bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full font-medium">
+            Milzo Admin Dashboard
+          </div>
+          <div className="text-xs sm:text-sm bg-white/15 backdrop-blur-md px-4 py-1.5 rounded-full">
+           {GetLastUpdatedText(lastUpdated)}
+          </div>
+          {/* * Manual refresh for dashboard stats until real-time updates are implemented */}
+          <button
+            onClick={onRefresh}
+            disabled={isRefreshing}
+            className="flex items-center gap-2 bg-white/15 hover:bg-white/25 backdrop-blur-md px-4 py-2 rounded-full transition-all duration-200 disabled:opacity-60"
+          >
+            <MdRefresh
+              className={`text-lg ${isRefreshing ? "animate-spin" : ""}`}
+            />
+            <span className="text-sm font-medium">
+              {isRefreshing ? "Refreshing..." : "Refresh"}
+            </span>
+          </button>
         </div>
       </div>
     </motion.div>

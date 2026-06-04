@@ -3,7 +3,7 @@ import StatCardShimmer from '@/components/dashboard/StatCardShimmer';
 import StatsCard from '@/components/dashboard/StatsCard';
 import WelcomeHeader from '@/components/dashboard/WelcomeHeader';
 import { useGetDashboardStatsQuery } from '@/redux/api/StatsApi';
-import React from 'react';
+import React, { useState } from 'react';
 import { IoPeopleSharp } from 'react-icons/io5';
 import { MdCampaign, MdPendingActions } from 'react-icons/md';
 import { RiVerifiedBadgeFill } from 'react-icons/ri';
@@ -13,7 +13,12 @@ const Dashboard = () => {
   const user = useSelector((state) => state.Auth.user)
   const statsQuery = useGetDashboardStatsQuery()
   const stats = statsQuery?.data?.data?.stats || {}
-
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  // handle refresh
+  const handleRefresh = async()=>{
+   await statsQuery.refetch()
+   setLastUpdated(new Date())
+  }
   const statsData = [
     {
       icon: IoPeopleSharp,
@@ -48,12 +53,12 @@ const Dashboard = () => {
 
 
   return (
-    <div className='w-full p-5 flex flex-col gap-8 '>
+    <div className='w-full px-5 py-2 flex flex-col gap-3'>
       {/* welcome header  */}
-      <WelcomeHeader username={user?.username} />
+      <WelcomeHeader username={user?.username} onRefresh={handleRefresh} isRefreshing={statsQuery?.isFetching} lastUpdated={lastUpdated} />
       {/* stats card */}
       {statsQuery?.isLoading ? (
-        <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6'>
+        <div className='grid mt-2 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6'>
           {Array(4).fill(0).map((_, i) => <StatCardShimmer key={i} />)}
         </div>
       ) : statsQuery?.isError ? (
