@@ -180,6 +180,7 @@ const CreateCampaign = async (req, res) => {
     }
     // create campaign
     const campaign = await Campaign.create({
+      adminId:admin._id,
       title,
       discountType,
       discountValue,
@@ -244,5 +245,44 @@ const ToggleCampaignStatus = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
+// Dashboard analytics api
+const AdminDashboardStatsCard = async(req,res)=>{
+  try {
+      const adminId = req.user 
+      // check admin exists or not
+      const admin = await Admin.findById(adminId)
+      if(!admin){
+        return Response(res,404,"Admin not found")
+      }
+      if(admin.role !== "admin"){
+          return Response(res, 401, "You are not authorized to access this route")
+      }
+      const [totalVendors,pendingVendors,approvedVendors] = await Promise.all([
+            //totalVendors 
+            Vendor.countDocuments(),
+            // pending approvals 
+            Vendor.countDocuments({
+              kycStatus:"pending"
+            }),
+            // approved Vendors 
+            Vendor.countDocuments({
+              kycStatus:"approved"
+            })
+      ])
+      // find total campaigns
+      const totalCampaigns = await Campaign.countDocuments()
+      return Response(res,200,"Dashboard Stats Card",{
+        stats:{
+          totalVendors:totalVendors,
+          pendingVendors:pendingVendors,
+          approvedVendors:approvedVendors,
+          totalCampaigns:totalCampaigns,
+        }
+      })
+  } catch (error) {
+    console.log("Failed to get admin dashboard stats", error);
+    return Response(res, 500, "Internal server error");
+  }
+}
 
-module.exports = { GetAllVendors, ApproveAndRejectVendor, CreateCampaign,GetAllCampaigns,ToggleCampaignStatus};
+module.exports = { GetAllVendors, ApproveAndRejectVendor, CreateCampaign,GetAllCampaigns,ToggleCampaignStatus,AdminDashboardStatsCard};

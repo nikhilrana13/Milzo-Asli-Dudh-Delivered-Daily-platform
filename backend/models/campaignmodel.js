@@ -1,5 +1,6 @@
 const  mongoose = require("mongoose")
 const campaignSchema = new mongoose.Schema({
+  adminId:{type: mongoose.Types.ObjectId, ref: "Admin", default: null},
   title: { type: String, required: true },
   discountType: {type: String, enum: ["percentage", "flat"], required: true,},
   discountValue: { type: Number, required: true },
