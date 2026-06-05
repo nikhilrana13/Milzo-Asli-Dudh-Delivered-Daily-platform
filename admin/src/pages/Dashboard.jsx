@@ -12,7 +12,7 @@ import { useSelector } from 'react-redux';
 const Dashboard = () => {
   const user = useSelector((state) => state.Auth.user)
   const statsQuery = useGetDashboardStatsQuery()
-  const stats = statsQuery?.data?.data?.stats || {}
+  const stats = statsQuery?.data?.data?.stats ?? {}
   const [lastUpdated, setLastUpdated] = useState(new Date());
   // handle refresh
   const handleRefresh = async()=>{
