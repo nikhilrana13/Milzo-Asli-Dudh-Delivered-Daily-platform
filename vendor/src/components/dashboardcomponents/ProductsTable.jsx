@@ -156,7 +156,7 @@ const ProductsTable = ({ products, isLoading, isError, onEdit, }) => {
                         </tr>
                     </tbody>
                 )}
-            </table>
+             </table>
             </div>
 
             {/* Mobile Card Layout */}
