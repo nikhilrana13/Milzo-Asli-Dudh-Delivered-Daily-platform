@@ -13,11 +13,13 @@ const GetAllVendors = async (req, res) => {
     page = parseInt(page);
     limit = parseInt(limit);
     const skip = (page - 1) * limit;
-    const allowedStatus = ["approved", "rejected", "pending", "not_submitted"];
+    const allowedStatus = ["approved", "rejected", "pending"];
     if (kycStatus && !allowedStatus.includes(kycStatus)) {
       return Response(res, 400, "Invalid kyc status value");
     }
-    let query = {};
+    let query = {
+      kycStatus: {$ne:"not_submitted"}
+    };
     if (kycStatus) {
       query.kycStatus = kycStatus;
     }
@@ -30,11 +32,11 @@ const GetAllVendors = async (req, res) => {
       return Response(res, 400, "You are not authorized to access this route");
     }
     const vendors = await Vendor.find(query)
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .select(
-        "kycDetails username email profilePic location city pincode displayName contactnumbers kycStatus milkLabTestImg isKycApproved isActive",
+        "kycDetails username email profilePic location city pincode displayName contactnumbers kycStatus milkLabTestImg isKycApproved isActive createdAt",
       );
     const totalVendors = await Vendor.countDocuments(query);
     const totalPages = Math.ceil(totalVendors / limit);
