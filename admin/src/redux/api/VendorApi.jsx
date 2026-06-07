@@ -12,7 +12,15 @@ export const VendorApi = createApi({
     endpoints:(builder)=>({
         // find Vendors
         GetAllVendors:builder.query({
-            query:()=> "/api/admin/allvendors",
+            query:({page,limit,kycStatus})=>({
+               url:"/api/admin/allvendors",
+               method:"GET",
+               params:{
+                page:page, 
+                limit:limit,
+                kycStatus:kycStatus
+               }
+            }),
             providesTags:["VendorApi"]
         })
     })
