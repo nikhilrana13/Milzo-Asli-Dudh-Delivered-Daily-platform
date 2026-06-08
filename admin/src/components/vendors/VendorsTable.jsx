@@ -1,10 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import fallbackUser from "../../assets/fallbackuser.png"
 import VendorTableShimmer from './VendorTableShimmer';
 import VendorEmptyState from './VendorEmptyState';
+import ApproveAndRejectKycDialog from './ApproveAndRejectKycDialog';
 
 const VendorsTable = ({ vendors, isLoading, isError }) => {
-
+    const [showDialog,setShowDialog] = useState(false)
+    const [SelectvendorId,setSelectVendorId]  = useState(null)
+    const [VendorKycDetails,setVendorKycDetails] = useState({})
+    const [vendorCurrentStatus,setVendorCurrentStatus] = useState("")
   return (
     <>
       <div className=' overflow-x-auto'>
@@ -77,7 +81,7 @@ const VendorsTable = ({ vendors, isLoading, isError }) => {
                     </td>
                     {/* Actions */}
                     <td className="px-4 py-3 text-right">
-                      <div className="flex justify-end gap-2">
+                      <div onClick={()=>{setShowDialog(true),setSelectVendorId(vendor?._id),setVendorKycDetails(vendor?.kycDetails),setVendorCurrentStatus(vendor?.kycStatus)}}  className="flex justify-end gap-2">
                         <button
                           className="px-3 py-1.5 rounded-lg bg-green-100 text-green-700 text-sm font-medium hover:bg-green-200"
                         >
@@ -110,6 +114,12 @@ const VendorsTable = ({ vendors, isLoading, isError }) => {
 
 
       </div>
+      {/* open dialog */}
+      {
+        showDialog && (
+          <ApproveAndRejectKycDialog onClose={()=>setShowDialog(false)} vendorId={SelectvendorId} kycDetails={VendorKycDetails} vendorCurrentStatus={vendorCurrentStatus}  />
+        )
+      }
 
     </>
   );

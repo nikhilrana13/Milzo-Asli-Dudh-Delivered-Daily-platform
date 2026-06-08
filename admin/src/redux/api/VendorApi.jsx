@@ -22,9 +22,22 @@ export const VendorApi = createApi({
                }
             }),
             providesTags:["VendorApi"]
+        }),
+        // approve and reject vendor 
+        ApproveAndRejectVendor:builder.mutation({
+            query:({vendorId,status,rejectedReason})=>({
+               url:"/api/admin/vendor/kycverify",
+               method:"PUT",
+               body:{
+                vendorId,
+                status,
+                ...((status === "rejected") ? { rejectedReason } : {})
+               }
+            }),
+            invalidatesTags:["VendorApi"]
         })
     })
 })
 
 
-export const {useGetAllVendorsQuery} = VendorApi 
+export const { useGetAllVendorsQuery, useApproveAndRejectVendorMutation } = VendorApi 
