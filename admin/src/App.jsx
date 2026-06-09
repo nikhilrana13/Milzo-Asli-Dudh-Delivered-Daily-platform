@@ -4,14 +4,17 @@ import AdminLogin from './pages/AdminLogin';
 import DashboardLayout from './components/layout/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import Vendors from './pages/Vendors';
-import Campaigns from './pages/campaigns';
 import { ToastContainer } from 'react-toastify';
 import AdminProtectedRoute from './middleware/AdminProtectedRoute';
+import ErrorBoundary from './components/common/ErrorBoundary';
+import Campaigns from './pages/Campaigns';
 
 
 const App = () => {
   return (
-    <div className="w-full">
+    <>
+     <ErrorBoundary>
+        <div className="w-full">
       {/* routes */}
       <Routes>
         <Route path="/" element={<Navigate to="/admin/login" />} />
@@ -30,6 +33,10 @@ const App = () => {
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} style={{ zIndex: 200000 }} />
     </div>
+
+     </ErrorBoundary>
+    </>
+  
   );
 }
 
