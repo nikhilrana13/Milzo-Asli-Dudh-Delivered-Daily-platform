@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 
 const CampaignsTable = ({ campaigns, Loading, isError }) => {
     const [ToggleCampaignStatus, { isLoading }] = useToggleCampaignStatusMutation()
+   
 
     // disable and enable campaign
     const handleToggleStatus = async (id) => {
