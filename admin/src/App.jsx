@@ -11,6 +11,7 @@ import Campaigns from './pages/Campaigns';
 
 
 const App = () => {
+  
   return (
     <>
      <ErrorBoundary>
