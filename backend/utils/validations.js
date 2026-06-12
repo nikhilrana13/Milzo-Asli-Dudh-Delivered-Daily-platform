@@ -9,11 +9,12 @@ const safeParse = (data) => {
 const validateDeliveryTimings = (timings) => {
   if (!Array.isArray(timings)) return "Invalid format";
   const allowedSlots = ["morning", "evening"];
-  const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+  const timeRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
   for (let t of timings) {
     if (!allowedSlots.includes(t.slot)) {
       return "Invalid slot (morning/evening allowed)";
     }
+    if (!t.time) continue;
     if (!timeRegex.test(t.time)) {
       return "Invalid time format (HH:MM)";
     }

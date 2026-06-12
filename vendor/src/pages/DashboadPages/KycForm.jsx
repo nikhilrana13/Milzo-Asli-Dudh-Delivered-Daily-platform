@@ -9,10 +9,12 @@ import { api } from '@/utils/api';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { RotatingLines } from 'react-loader-spinner';
+import { useDispatch, useSelector } from 'react-redux';
+import { SetUser } from '../../redux/AuthSlice';
 
 const KycForm = () => {
   const [loading, setLoading] = useState(false)
-
+  const dispatch = useDispatch()
   const navigate = useNavigate()
   const methods = useForm({
     mode: "onChange",
@@ -69,7 +71,9 @@ const KycForm = () => {
       const response = await api.post('/api/vendor/apply-kyc', formdata)
       if (response?.data) {
         toast.success(response?.data?.message)
-        navigate("/vendor/kyc")
+        const updatedvendor = response?.data?.data?.vendor
+        dispatch(SetUser(updatedvendor))
+        window.location.href = "/vendor/kyc"
       }
     } catch (error) {
       console.error("failed to apply-kyc", error)

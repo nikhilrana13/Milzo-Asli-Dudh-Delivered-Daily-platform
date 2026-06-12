@@ -28,7 +28,8 @@ const ApplyKyc = async (req, res) => {
       deliveryTimings,
       contactnumbers,
     } = req.body;
-    console.log("req.body", req.body);
+    // console.log("req.body", req.body);
+    // console.log("req.files",req.files)
     // Extract uploaded files with safe fallback
     const dairyImages = req.files?.images || [];
     const dairyVideos = req.files?.videos || [];
@@ -191,11 +192,7 @@ const ApplyKyc = async (req, res) => {
         },
         { new: true },
       );
-      return Response(
-        res,
-        200,
-        "Kyc Submitted Wait for 48 hours to be apporved",
-      );
+      return Response(res,200,"Kyc Submitted Wait for 48 hours to be apporved",{vendor});
     } catch (error) {
       console.error("Upload failed:", error);
       // Cleanup already uploaded files
