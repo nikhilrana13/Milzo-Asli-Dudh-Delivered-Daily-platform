@@ -19,6 +19,7 @@ import LocationProtectedRoute from './middleware/LocationProtectedRoute';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PaymentFailed from './pages/PaymentFailed';
 import ErrorBoundary from './components/common/ErrorBoundary';
+import { Helmet } from 'react-helmet-async';
 
 const App = () => {
   const { activeDialog, setActiveDialog, setDialogStep, } = useDialog()
@@ -59,6 +60,17 @@ const App = () => {
 
   return (
     <>
+    <Helmet>
+        <title>Milzo - Fresh Dairy Subscription Delivered Daily</title>
+        <meta
+          name="description"
+          content="Subscribe to fresh milk, paneer, curd, and dairy products from trusted local vendors. Daily doorstep delivery with Milzo."
+        />
+        <meta
+          name="keywords"
+          content="milk delivery, dairy subscription, fresh milk, paneer delivery, Milzo"
+        />
+      </Helmet>
       <ErrorBoundary>
         <div className='w-full'>
           {/* routes */}

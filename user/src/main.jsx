@@ -8,17 +8,20 @@ import { Provider } from 'react-redux'
 import { PersistGate } from 'redux-persist/es/integration/react'
 import { Persistor, Store, } from "./redux/Store"
 import { LocationProvider } from './context/LocationContext'
+import { HelmetProvider } from 'react-helmet-async'
 
 createRoot(document.getElementById('root')).render(
   <Provider store={Store}>
     <PersistGate loading={null} persistor={Persistor}>
-      <BrowserRouter>
+      <HelmetProvider>
+         <BrowserRouter>
       <LocationProvider>
          <DialogProvider>
           <App />
         </DialogProvider>
       </LocationProvider>
       </BrowserRouter>
+      </HelmetProvider>
     </PersistGate>
   </Provider>
 )
