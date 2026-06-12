@@ -69,9 +69,10 @@ const KycForm = () => {
     try {
       setLoading(true)
       const response = await api.post('/api/vendor/apply-kyc', formdata)
-      if (response?.data) {
+      if (response) {
         toast.success(response?.data?.message)
-        const updatedvendor = response?.data?.data?.vendor
+        const updatedvendor = response?.data?.vendor
+        // console.log("updatedvendor",updatedvendor)
         dispatch(SetUser(updatedvendor))
         window.location.href = "/vendor/kyc"
       }
