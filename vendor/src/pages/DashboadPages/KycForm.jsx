@@ -59,6 +59,8 @@ const KycForm = () => {
     data.videos.forEach((file) => {
       formdata.append("videos", file);
     });
+    formdata.append("milkLabTestImg",data.milkLabTestImg)
+
     // for (let pair of formdata.entries()) {
     //   console.log(pair[0], pair[1])
     // }
