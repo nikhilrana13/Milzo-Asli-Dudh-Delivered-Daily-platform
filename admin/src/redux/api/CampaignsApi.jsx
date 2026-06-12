@@ -21,8 +21,17 @@ export const CampaignsApi = createApi({
                 method:"PATCH"
             }),
             invalidatesTags:["CampaignsApi"]
+        }),
+        // Create a Campaign 
+        CreateACampaign:builder.mutation({
+            query:(payload)=>({
+                url:`/api/admin/create-campaign`,
+                method:"POST",
+                body: payload
+            }),
+            invalidatesTags:["CampaignsApi"]
         })
     })
 })
 
-export const {useGetAllCampaignsQuery,useToggleCampaignStatusMutation} = CampaignsApi
+export const {useGetAllCampaignsQuery,useToggleCampaignStatusMutation,useCreateACampaignMutation} = CampaignsApi

@@ -11,7 +11,7 @@ import Campaigns from './pages/Campaigns';
 
 
 const App = () => {
-  
+
   return (
     <>
      <ErrorBoundary>
@@ -34,7 +34,7 @@ const App = () => {
       </Routes>
       <ToastContainer position="top-right" autoClose={3000} style={{ zIndex: 200000 }} />
     </div>
-
+    
      </ErrorBoundary>
     </>
   

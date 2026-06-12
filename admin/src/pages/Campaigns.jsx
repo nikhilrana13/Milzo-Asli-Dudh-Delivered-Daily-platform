@@ -1,4 +1,5 @@
 import CampaignsTable from '@/components/campaigns/CampaignsTable';
+import CreateCampaignForm from '@/components/campaigns/CreateCampaignForm';
 import { useGetAllCampaignsQuery } from '@/redux/api/CampaignsApi';
 import React, { useState } from 'react';
 import { MdAddCircle } from 'react-icons/md';
@@ -29,7 +30,7 @@ const Campaigns = () => {
           </div>
           {/* Button */}
           <div className="w-full md:w-auto">
-            <button className="w-full md:w-auto bg-gradient-to-r from-[#006e2f] to-[#009e4f] text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition">
+            <button onClick={()=>setShowModel(true)} className="w-full md:w-auto bg-gradient-to-r from-[#006e2f] to-[#009e4f] text-white px-6 py-3 rounded-xl flex items-center justify-center gap-2 font-semibold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-95 transition">
               <MdAddCircle className="text-xl" />
               Create Campaign
             </button>
@@ -40,6 +41,10 @@ const Campaigns = () => {
           <CampaignsTable campaigns={campaigns} Loading={campaignsQuery?.isLoading} isError={campaignsQuery?.isError} />
         </div>
       </div>
+      {/* create campaign dialog */}
+      {showModel && (
+        <CreateCampaignForm onClose={()=>setShowModel(false)} />
+      )}
     </>
    
   );
