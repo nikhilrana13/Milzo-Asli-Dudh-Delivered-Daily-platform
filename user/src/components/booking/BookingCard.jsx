@@ -2,9 +2,9 @@ import React from 'react';
 import { MdAccessTime, MdLocationOn } from "react-icons/md";
 import { FiCalendar, FiPackage } from "react-icons/fi";
 
-const BookingCard = ({booking}) => {
+const BookingCard = ({ booking }) => {
   return (
-     <div className="group overflow-hidden rounded-3xl border border-[#dcfce7] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
+    <div className="group overflow-hidden rounded-3xl border border-[#dcfce7] bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl">
 
       {/* Status Header */}
       <div className="flex items-center justify-between border-b border-[#f0fdf4] bg-[#f8fffa] px-5 py-4">
@@ -16,10 +16,30 @@ const BookingCard = ({booking}) => {
             #{booking?._id?.slice(-8)}
           </p>
         </div>
+        <span
+          className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border
+           ${booking.status === "paid"
+              ? "bg-green-50 text-green-700 border-green-200"
+              : booking.status === "failed"
+                ? "bg-red-50 text-red-700 border-red-200"
+                : "bg-yellow-50 text-yellow-700 border-yellow-200"
+            }
+  `}
+        >
+          <span
+            className={`w-2 h-2 rounded-full ${booking.status === "paid"
+                ? "bg-green-500"
+                : booking.status === "failed"
+                  ? "bg-red-500"
+                  : "bg-yellow-500 animate-pulse"
+              }`}
+          />
 
-        <span className="rounded-full bg-green-100 px-4 py-1.5 text-xs font-semibold text-green-700">
-          {booking?.status}
+          {booking.status === "pending" && "Payment Pending"}
+          {booking.status === "paid" && "Payment Successful"}
+          {booking.status === "failed" && "Payment Failed"}
         </span>
+
       </div>
 
       <div className="p-5">
