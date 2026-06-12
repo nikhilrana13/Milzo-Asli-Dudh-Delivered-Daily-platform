@@ -37,13 +37,13 @@ Milzo is a full-stack dairy subscription platform that connects customers with n
 ---
 
 💳 Payment Integration
-Stripe Payment Gateway Integration
-Secure Checkout Session Creation
-Stripe Webhook Integration
-Automatic Payment Status Updates via Webhooks
-Server-side Payment Verification
-Event-driven Payment Processing
-Test Environment Implementation using Stripe Sandbox Account
+* Stripe Payment Gateway Integration
+* Secure Checkout Session Creation
+* Stripe Webhook Integration
+* Automatic Payment Status Updates via Webhooks
+* Server-side Payment Verification
+* Event-driven Payment Processing
+* Test Environment Implementation using Stripe Sandbox Account
 
 ## ⚡ Advanced Features
 
