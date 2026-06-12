@@ -85,8 +85,6 @@ const CreateSubscriptionBooking = async (req, res) => {
       return Response(res, 400, "Subscription already active for this product");
     }
     if (recentBooking) {
-      recentBooking.status = "failed";
-      await recentBooking.save();
       return Response(res, 400, "Payment already in progress for this product");
     }
     let parsedTimings = [];
