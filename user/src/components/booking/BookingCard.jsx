@@ -18,7 +18,7 @@ const BookingCard = ({booking}) => {
         </div>
 
         <span className="rounded-full bg-green-100 px-4 py-1.5 text-xs font-semibold text-green-700">
-          Paid
+          {booking?.status}
         </span>
       </div>
 
