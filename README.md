@@ -121,6 +121,17 @@ Milzo is a full-stack dairy subscription platform that connects customers with n
 
 ---
 
+## 🌐 Live Demo
+
+### 👤 User Portal
+https://milzo-asli-dudh-delivered-daily-platform-yvpb.onrender.com
+
+### 🏪 Vendor Portal
+https://milzo-asli-dudh-delivered-daily-platform-n61r.onrender.com
+
+### 🛡️ Admin Portal
+Available for authorized administrators only.
+
 ### Short Description
 
 **A production-ready full-stack dairy subscription platform with User, Vendor, and Admin panels, featuring geospatial vendor discovery, campaign management, KYC verification, inventory management, Google Authentication, and scalable architecture.**
