@@ -443,7 +443,7 @@ const VendorAllBookings = async (req, res) => {
       filter.status = status;
     }
     const bookings = await Booking.find(filter)
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate("userId", "username phoneNumber email")
@@ -489,7 +489,7 @@ const UserAllBookings = async (req, res) => {
       filter.status = status;
     }
     const bookings = await Booking.find(filter)
-      .sort({ createdAt: 1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .populate("vendorId", "displayName contactnumbers email")
