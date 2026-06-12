@@ -93,6 +93,9 @@ const MediaLogistics = () => {
         <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-[#191c1e]">
           Media & Logistics
         </h2>
+        <span className="text-sm text-[#191c1e]">
+         (Upload images in WEBP, PNG, or JPG format only.)
+        </span>
       </div>
       {/* IMAGES */}
       <Controller
@@ -259,11 +262,11 @@ const MediaLogistics = () => {
                 className="flex-1 px-3 py-2 sm:px-4 sm:py-3 bg-[#e1e2e4] rounded-xl outline-none focus:ring-2 focus:ring-[#006e2f]/20"
               />
             </div>
-             {errors?.deliveryTimings?.[1]?.time && (
-                <p className="text-red-500 text-xs">
-                  {errors.deliveryTimings[1].time.message}
-                </p>
-              )}
+            {errors?.deliveryTimings?.[1]?.time && (
+              <p className="text-red-500 text-xs">
+                {errors.deliveryTimings[1].time.message}
+              </p>
+            )}
           </div>
 
         </div>
