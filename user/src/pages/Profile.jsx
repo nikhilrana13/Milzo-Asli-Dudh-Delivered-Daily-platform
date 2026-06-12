@@ -9,9 +9,11 @@ import ProfileErrorState from '@/components/profile/ProfileErrorState';
 import { useDispatch } from 'react-redux';
 import { SetUser } from '@/redux/AuthSlice';
 import fallbackuser from '../assets/fallbackuser.png'
+import useLogout from '@/hooks/useLogout';
 
 
 const Profile = () => {
+  const {handleLogout} = useLogout()
   const { handleSubmit, register, setValue, formState: { errors } } = useForm({
     defaultValues: {
       username: "",
@@ -275,6 +277,11 @@ const Profile = () => {
                 </button>
               </div>
             </motion.form>
+            {/* logout button for mobile */}
+            <button onClick={handleLogout} className="block sm:hidden mt-3 h-14 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#047857] to-[#10b981] font-semibold text-white shadow-lg shadow-green-500/20 transition-all">
+              Logout
+            </button>
+
           </div>
         </div>
       )
