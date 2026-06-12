@@ -1,4 +1,4 @@
-const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
+const allowedImageTypes = ["image/jpeg", "image/png", "image/webp","image/AVIF"];
 const allowedVideoTypes = ["video/mp4", "video/mov"];
 
 const FileFilter = (req, file, cb) => {
