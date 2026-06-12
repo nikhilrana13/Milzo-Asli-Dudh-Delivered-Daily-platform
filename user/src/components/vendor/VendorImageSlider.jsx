@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import fallbackImage from "/noimg.jpg"
 
-const VendorImageSlider = ({images = [],vendorName = "Vendor Dairy"}) => {
-   const [currentImage, setCurrentImage] =useState(0)
+const VendorImageSlider = ({ images = [], vendorName = "Vendor Dairy" }) => {
+   const [currentImage, setCurrentImage] = useState(0)
 
    // auto slide
    useEffect(() => {
@@ -21,7 +22,7 @@ const VendorImageSlider = ({images = [],vendorName = "Vendor Dairy"}) => {
          <AnimatePresence mode="wait">
             <motion.img
                key={currentImage}
-               src={images?.[currentImage]?.url}
+               src={images?.[currentImage]?.url || fallbackImage}
                alt={vendorName}
                initial={{
                   opacity: 0,
@@ -37,7 +38,10 @@ const VendorImageSlider = ({images = [],vendorName = "Vendor Dairy"}) => {
                transition={{
                   duration: 0.7
                }}
-               className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700"/>
+               onError={(e) => {
+                  e.currentTarget.src = fallbackVendor;
+               }}
+               className="h-full w-full object-cover group-hover:scale-110 transition-transform duration-700" />
          </AnimatePresence>
          {/* overlay */}
          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/5 to-transparent" />
@@ -46,14 +50,13 @@ const VendorImageSlider = ({images = [],vendorName = "Vendor Dairy"}) => {
             <div className="absolute bottom-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2">
                {images.map((_, index) => (
                   <button key={index} onClick={() =>
-                        setCurrentImage(index)
-                     }
+                     setCurrentImage(index)
+                  }
                      className={`
                         h-2 rounded-full transition-all duration-300
-                        ${
-                           currentImage === index
-                              ? "w-6 bg-white"
-                              : "w-2 bg-white/50"
+                        ${currentImage === index
+                           ? "w-6 bg-white"
+                           : "w-2 bg-white/50"
                         }
                      `}
                   />
