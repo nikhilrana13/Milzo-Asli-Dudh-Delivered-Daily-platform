@@ -22,7 +22,7 @@ Milzo is a full-stack dairy subscription platform that connects customers with n
 * KYC submission and verification workflow
 * Product catalog management
 * Inventory and stock management
-* Cloudinary-powered image uploads
+* ImageKit-powered images and videos uploads
 * Subscription order management
 
 ### 🛡️ Admin Module
@@ -89,9 +89,8 @@ Milzo is a full-stack dairy subscription platform that connects customers with n
 ### Services & Deployment
 
 * Firebase Authentication
-* Cloudinary
 * Render
-* Vercel
+* Image Kit
 
 ---
 
