@@ -78,13 +78,15 @@ const CreateSubscriptionBooking = async (req, res) => {
         userId,
         productId,
         status: "pending",
-      }),
+      }).sort({ createdAt: -1 })
     ]);
 
     if (existing) {
       return Response(res, 400, "Subscription already active for this product");
     }
     if (recentBooking) {
+      recentBooking.status = "failed";
+      await recentBooking.save();
       return Response(res, 400, "Payment already in progress for this product");
     }
     let parsedTimings = [];
@@ -513,12 +515,12 @@ const UserAllBookings = async (req, res) => {
     return Response(res, 500, "Internal server error");
   }
 };
-// booking details 
-const EachBookingDetails = async(req,res)=>{
-  try{
-     const userId = req.user 
-     const bookingId = req.params.id 
-    //check user exists or not 
+// booking details
+const EachBookingDetails = async (req, res) => {
+  try {
+    const userId = req.user;
+    const bookingId = req.params.id;
+    //check user exists or not
     const user = await User.findById(userId);
     if (!user) {
       return Response(res, 404, "User not found");
@@ -526,20 +528,20 @@ const EachBookingDetails = async(req,res)=>{
     if (user.role !== "user") {
       return Response(res, 403, "You are not authorized to access this route");
     }
-    // check booking exists or not 
+    // check booking exists or not
     const booking = await Booking.findOne({
-      _id:bookingId,
-      userId:user._id
-    })
-    if(!booking){
-      return Response(res,404,"Booking not found")
+      _id: bookingId,
+      userId: user._id,
+    });
+    if (!booking) {
+      return Response(res, 404, "Booking not found");
     }
-    return Response(res,200,"Booking details",{booking})
-  }catch(error){
-    console.log("failed to get booking details",error)
-    return Response(res,500,"Internal server error")
+    return Response(res, 200, "Booking details", { booking });
+  } catch (error) {
+    console.log("failed to get booking details", error);
+    return Response(res, 500, "Internal server error");
   }
-}
+};
 
 module.exports = {
   CreateSubscriptionBooking,
@@ -547,5 +549,5 @@ module.exports = {
   UpdatePaymentStatus,
   VendorAllBookings,
   UserAllBookings,
-  EachBookingDetails
+  EachBookingDetails,
 };
